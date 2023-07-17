@@ -1,5 +1,5 @@
 from exp.exp_basic import Exp_Basic
-from data_provider.data_factory import data_provider
+from data_provider.data_loader import data_provider
 from data_provider.create_od_matix import create_od_matrix
 from model import GTFormer, CrowdNet
 from utils.dataset_utils import restore_od_matrix, get_matrix_mapping, to_2D_map
