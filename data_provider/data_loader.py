@@ -21,9 +21,10 @@ class MyDataset(Dataset):
 
 
     def __read_data__(self, od_matrix):
+        data_len = len(od_matrix)
 
-        border1s = [0, self.day_step*138, self.day_step*173]
-        border2s = [self.day_step*138, self.day_step*173, self.day_step*183]
+        border1s = [0, self.day_step*((data_len-10)*0.8), self.day_step*(data_len-10)]
+        border2s = [self.day_step*((data_len-10)*0.8), self.day_step*(data_len-10), self.day_step*data_len]
         border1 = border1s[self.set_type]
         border2 = border2s[self.set_type]
 

@@ -54,7 +54,10 @@ class Exp_Main(Exp_Basic):
                 batch_x = batch_x.float().to(self.device)
                 batch_y = batch_y.float().to(self.device)
 
-                if self.args.save_attention:
+                if self.args.model=='CrowdNet':
+                    param = torch.tensor(param).float().to(self.device)
+
+                if self.args.save_outputs:
                     outputs, _, _ = self.model(batch_x, param)
                 else:
                     outputs = self.model(batch_x, param)
@@ -93,7 +96,7 @@ class Exp_Main(Exp_Basic):
                 batch_x = batch_x.float().to(self.device)
                 batch_y = batch_y.float().to(self.device)
 
-                if self.args.save_attention:
+                if self.args.save_outputs:
                     outputs, _, _ = self.model(batch_x, param)
                 else:
                     outputs = self.model(batch_x, param)
@@ -122,7 +125,7 @@ class Exp_Main(Exp_Basic):
                 batch_x = batch_x.float().to(self.device)
                 batch_y = batch_y.float().to(self.device)
 
-                if self.args.save_attention_weight:
+                if self.args.save_outputs:
                     outputs, A_temporal, A_spatial = self.model(batch_x, param)
                 else:
                     outputs = self.model(batch_x, param)
@@ -131,7 +134,7 @@ class Exp_Main(Exp_Basic):
                 trues.append(batch_y.cpu().detach().numpy())
 
                 if self.args.model=='GTFormer':
-                    if self.args.save_attention:
+                    if self.args.save_outputs:
                         A_spatial_ = torch.zeros((self.args.batch_size, self.args.n_head, self.args.num_tiles**2, self.args.num_tiles**2)).to(self.device)
                         for j in range(self.args.num_tiles**4):
                             A_spatial_[:, :, j, param[j]] = A_spatial[:, :, j, :]
@@ -162,7 +165,7 @@ class Exp_Main(Exp_Basic):
 
         save_path = os.path.join(self.args.path + '/results_data/' + f'{self.args.tile_size}m_{self.args.sample_time}_{self.args.model}')
         if not os.path.exists(save_path):
-          os.makedirs(save_path)
+            os.makedirs(save_path)
         f = open(save_path + '/result.txt', 'a')
         f.write('itr:{} \n'.format(itr+1))
         f.write('Crowd flow prediction:   mse:{}, mae:{} \n'.format(crowd_rmse_test, crowd_mae_test))
@@ -171,13 +174,13 @@ class Exp_Main(Exp_Basic):
         f.write('\n')
         f.close()
 
-        if self.args.save_output:
-          if not os.path.exists(save_path + f'/{itr}'):
-              os.makedirs(save_path + f'/{itr}')
-          np.save(save_path + f'/{itr}/' + 'preds.npy', preds)
-          np.save(save_path + f'/{itr}/' + 'trues.npy', trues)
-          np.save(save_path + f'/{itr}/' + 'A_temporal.npy', A_temporal.cpu().detach().numpy())
-          np.save(save_path + f'/{itr}/' + 'A_spatial.npy', A_spatial_.cpu().detach().numpy())
-          np.save(save_path + f'/{itr}/' + 'tile_index.npy', tile_index)
+        if self.args.save_outputs:
+            if not os.path.exists(save_path + f'/{itr}'):
+                os.makedirs(save_path + f'/{itr}')
+            np.save(save_path + f'/{itr}/' + 'preds.npy', preds)
+            np.save(save_path + f'/{itr}/' + 'trues.npy', trues)
+            np.save(save_path + f'/{itr}/' + 'A_temporal.npy', A_temporal.cpu().detach().numpy())
+            np.save(save_path + f'/{itr}/' + 'A_spatial.npy', A_spatial_.cpu().detach().numpy())
+            np.save(save_path + f'/{itr}/' + 'tile_index.npy', tile_index)
 
         return

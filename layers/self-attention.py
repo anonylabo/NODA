@@ -43,7 +43,7 @@ class Relative_Temporal_SelfAttention(nn.Module):
 
         out = out.view(B, L, -1)
 
-        if self.save_attention:
+        if self.save_outputs:
             return self.out_projection(out), A
         else:
             return self.out_projection(out), None
@@ -80,7 +80,7 @@ class Temporal_SelfAttention(nn.Module):
 
         out = out.view(B, L, -1)
 
-        if self.save_attention:
+        if self.save_outputs:
             return self.out_projection(out), A
         else:
             return self.out_projection(out), None
@@ -118,7 +118,7 @@ class Geospatial_SelfAttention(nn.Module):
 
         out = out.view(B, L, -1)
         
-        if self.save_attention:
+        if self.save_outputs:
             return self.out_projection(out), A.squeeze()
         else:
             return self.out_projection(out), None
@@ -153,7 +153,7 @@ class Spatial_SelfAttention(nn.Module):
 
         out = out.view(B, L, -1)
 
-        if self.save_attention:
+        if self.save_outputs:
             return self.out_projection(out), A
         else:
             return self.out_projection(out), None

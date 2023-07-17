@@ -6,21 +6,26 @@ from utils.dataset_utils import get_normalized_adj
 def create_od_matrix(args):
     df = pd.read_csv(args.path + "/data/" + args.city + "/df_grouped_1000m_" + args.sample_time + ".csv")
 
+    minites = {'60min':60, '45min':45, '30min':30, '15min':15}
+    minite = minites[args.sample_time]
+
+    df['start'] = [df['starttime'][0] for _ in range(len(df))]
+    df['start'] = pd.to_datetime(df['start'])
+    df['starttime'] = pd.to_datetime(df['starttime'])
+    df['dif'] = df['starttime'] - df['start']
+    df['dif'] = df['dif'].dt.total_seconds().round()/(minite*60)
+    df['dif'] = df['dif'].astype('int')
+
     min_tile_id = df['tile_ID_origin'].min()
     df['tile_ID_origin'] -= df['tile_ID_origin'].min()
     df['tile_ID_destination'] -= df['tile_ID_destination'].min()
 
-    t = -1
-    time = set()
     x_axis = int(df['tile_ID_origin'].max())+1
     y_axis = int(df['tile_ID_destination'].max())+1
-    od_matrix = np.zeros([len(df['starttime'].unique()), x_axis, y_axis])
+    od_matrix = np.zeros([df['dif'].max()+1, x_axis, y_axis])
 
     for row in df.itertuples():
-        if(row.starttime not in time):
-            time.add(row.starttime)
-            t += 1
-        od_matrix[t, int(row.tile_ID_origin), int(row.tile_ID_destination)] = row.flow
+        od_matrix[row.dif, int(row.tile_ID_origin), int(row.tile_ID_destination)] = row.flow
 
     for i in range(od_matrix.shape[0]):
         np.fill_diagonal(od_matrix[i, :, :],0)

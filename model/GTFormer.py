@@ -71,7 +71,7 @@ class Model(nn.Module):
 
         out = temp_out.reshape(B, L+self.pred_len, O, D) + spat_out.permute(0,2,1).reshape(B, L+self.pred_len, O, D)
 
-        if self.args.save_attention_weight:
+        if self.args.save_outputs:
             return out[:, -self.pred_len:, :, :], A_temporal, A_spatial
         else:
             return out[:, -self.pred_len:, :, :]

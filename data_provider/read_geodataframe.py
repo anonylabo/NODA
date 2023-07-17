@@ -28,12 +28,13 @@ def load_dataset(city, tile_size, sample_time, dataset_directory):
         df = pd.concat(data)
     
     else:
-        for month in ['01','02','03','04','05','06','07','08','09','10','11','12']:
-            if not os.path.isfile(dataset_directory + "2019" + month + "-captialbikeshare-tripdata.zip"):
-                url = "https://s3.amazonaws.com/capitalbikeshare-data/2019" + month + "-capitalbikeshare-tripdata.zip"
-                r = requests.get(url, allow_redirects=True)
-                open(dataset_directory + "2019" + month + "-capitalbikeshare-tripdata.zip", 'wb').write(r.content)
-                print("Downloaded month: ", month)
+        for year in ['2018', '2019']:
+            for month in ['01','02','03','04','05','06','07','08','09','10','11','12']:
+                if not os.path.isfile(dataset_directory + year + month + "-captialbikeshare-tripdata.zip"):
+                    url = "https://s3.amazonaws.com/capitalbikeshare-data/" + year + month + "-capitalbikeshare-tripdata.zip"
+                    r = requests.get(url, allow_redirects=True)
+                    open(dataset_directory + year + month + "-capitalbikeshare-tripdata.zip", 'wb').write(r.content)
+                    print("Downloaded month: ", month)
         
         print("data preprocessing...")
         zip_files = [f for f in os.listdir(dataset_directory) if f.endswith('.zip')]
@@ -69,22 +70,12 @@ def load_dataset(city, tile_size, sample_time, dataset_directory):
     tessellation = gpd.GeoDataFrame(tessellation, geometry='geometry')
 
     list_positions = np.array([ast.literal_eval(el) for el in tessellation['position']])
-    #list_positions = [np.array(ast.literal_eval(el)) for el in tessellation['position']]
-    #list_positions = np.array(sorted(np.array(list_positions),key=itemgetter(1)))
 
     max_x = list_positions[:, 0].max()
     max_y = list_positions[:, 1].max()
 
     for i, y in enumerate(list_positions[:, 1]):
         list_positions[i, 1] = max_y - y
-
-    #pos_set = set()
-    #new_value = max_y +1
-    #for i, pos in enumerate(list_positions[:, 1]):
-        #if pos not in pos_set:
-            #new_value -= 1
-            #pos_set.add(pos)
-        #list_positions[i, 1] = new_value
 
     tessellation['positions'] = list(sorted(list_positions, key=itemgetter(0)))
 
