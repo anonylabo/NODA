@@ -1,5 +1,6 @@
 from exp.exp_basic import Exp_Basic
 from data_provider.data_factory import data_provider
+from data_provider.create_od_matix import create_od_matrix
 from model import GTFormer, CrowdNet
 from utils.dataset_utils import restore_od_matrix, get_matrix_mapping, to_2D_map
 from utils.exp_utils import EarlyStopping
@@ -27,7 +28,8 @@ class Exp_Main(Exp_Basic):
 
 
     def train(self):
-        train_loader, _, _, _, param = data_provider('train', self.args)
+        od_matrix, _, _, _, param = create_od_matrix(self.args)
+        train_loader = data_provider('train', self.args, od_matrix)
 
         path = os.path.join(self.args.path + f'/checkpoints_{self.args.model}/')
         if not os.path.exists(path):
@@ -64,7 +66,7 @@ class Exp_Main(Exp_Basic):
                 model_optim.step()
 
             train_loss = np.average(train_loss)
-            vali_loss = self.vali()
+            vali_loss = self.vali(od_matrix, param)
 
             my_lr_scheduler.step()
             print("Epoch: {}, cost time: {}, Steps: {} | Train Loss: {} Vali Loss: {}".format(
@@ -80,8 +82,8 @@ class Exp_Main(Exp_Basic):
         return
 
 
-    def vali(self):
-        vali_loader, _, _, _, param = data_provider('val', self.args)
+    def vali(self, od_matrix, param):
+        vali_loader = data_provider('val', self.args, od_matrix)
         total_loss = []
         criterion = nn.MSELoss()
         self.model.eval()
@@ -104,7 +106,8 @@ class Exp_Main(Exp_Basic):
         return total_loss
 
     def test(self, itr):
-        test_loader, empty_indices, min_tile_id, tile_index, param = data_provider('test', self.args)
+        od_matrix, min_tile_id, tile_index, empty_indices, param = create_od_matrix(self.args)
+        test_loader = data_provider('test', self.args, od_matrix)
 
         self.model.load_state_dict(torch.load(os.path.join(self.args.path + f'/checkpoints_{self.args.model}/' + 'checkpoint.pth')))
 

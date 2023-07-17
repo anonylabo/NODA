@@ -1,10 +1,9 @@
 import pandas as pd
 import numpy as np
 from torch.utils.data import Dataset
-from utils.dataset_utils import get_normalized_adj
 
 class MyDataset(Dataset):
-    def __init__(self, flag, args):
+    def __init__(self, flag, args, od_matrix):
 
         type_map = {'train': 0, 'val': 1, 'test': 2}
         self.set_type = type_map[flag]
@@ -18,40 +17,10 @@ class MyDataset(Dataset):
         day_steps = {'60min':24, '45min':32, '30min':48, '15min':96}
         self.day_step = day_steps[args.sample_time]
         self.num_tiles = args.num_tiles
-        self.__read_data__()
+        self.__read_data__(od_matrix)
 
 
-    def __read_data__(self):
-        df = pd.read_csv(self.path + "/data/" + self.city + "/df_grouped_1000m_" + self.sample_time + ".csv")
-
-        self.min_tile_id = df['tile_ID_origin'].min()
-        df['tile_ID_origin'] -= df['tile_ID_origin'].min()
-        df['tile_ID_destination'] -= df['tile_ID_destination'].min()
-
-        t = -1
-        time = set()
-        x_axis = int(df['tile_ID_origin'].max())+1
-        y_axis = int(df['tile_ID_destination'].max())+1
-        od_matrix = np.zeros([len(df['starttime'].unique()), x_axis, y_axis])
-
-        for row in df.itertuples():
-            if(row.starttime not in time):
-                time.add(row.starttime)
-                t += 1
-            od_matrix[t, int(row.tile_ID_origin), int(row.tile_ID_destination)] = row.flow
-
-        for i in range(od_matrix.shape[0]):
-            np.fill_diagonal(od_matrix[i, :, :],0)
-
-        od_sum = np.sum(od_matrix, axis=0)
-        od_matrix = od_matrix[:, ~(od_sum==0).all(1), :]
-        od_matrix = od_matrix[:, :, ~(od_sum.T==0).all(1)]
-
-        A = od_matrix.sum(axis=0)
-        self.A_hat = get_normalized_adj(A)
-
-        self.tile_index = [i for i, x in enumerate(~(od_sum==0).all(1)) if x]
-        self.empty_indices = [i for i, x in enumerate((od_sum==0).all(1)) if x]
+    def __read_data__(self, od_matrix):
 
         border1s = [0, self.day_step*138, self.day_step*173]
         border2s = [self.day_step*138, self.day_step*173, self.day_step*183]
@@ -78,21 +47,3 @@ class MyDataset(Dataset):
 
     def __len__(self):
         return len(self.data)
-    
-    def get_some(self):
-        if self.model=='GTFormer':
-            key_indices = []
-            for i in range(self.num_tiles**2):
-                index = []
-                start = i // self.num_tiles
-                end = i % self.num_tiles
-                for j in range(self.num_tiles):
-                    index.append(start*self.num_tiles + j)
-                    index.append(end + self.num_tiles*j)
-                index.remove(i)
-                key_indices.append(sorted(index))
-
-            return self.tile_index, self.min_tile_id, self.empty_indices, self.key_indices
-    
-        else:
-            return self.tile_index, self.min_tile_id, self.empty_indices, self.A_hat
