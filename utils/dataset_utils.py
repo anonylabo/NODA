@@ -6,6 +6,19 @@ import ast
 from operator import itemgetter
 
 
+def get_normalized_adj(A):
+    """
+    Returns the degree normalized adjacency matrix.
+    """
+    A = A + np.diag(np.ones(A.shape[0], dtype=np.float32))
+    D = np.array(np.sum(A, axis=1)).reshape((-1,))
+    D[D <= 10e-5] = 10e-5    # Prevent infs
+    diag = np.reciprocal(np.sqrt(D))
+    A_hat = np.multiply(np.multiply(diag.reshape(-1,1), A),
+                         diag.reshape(1,-1))
+    return A_hat
+
+
 def get_matrix_mapping(args):
     tessellation = pd.read_csv(args.path+f'/data/Tessellation_{args.tile_size}m_'+args.city+'.csv')
     tessellation['geometry'] = [shapely.wkt.loads(el) for el in tessellation.geometry]

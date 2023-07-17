@@ -2,7 +2,8 @@ import torch.nn as nn
 import torch
 
 from layers.embed import TokenEmbedding_spatial, TokenEmbedding_temporal
-from layers.transformer_encoder import Temporal_SelfAttention, Spatial_SelfAttention, Encoder, EncoderLayer
+from layers.transformer_encoder import Relative_Temporal_SelfAttention, Temporal_SelfAttention, Geopatial_SelfAttention, Spatial_SelfAttention, Encoder, EncoderLayer
+
 
 class Model(nn.Module):
     def __init__(self, args):
@@ -14,7 +15,10 @@ class Model(nn.Module):
         # Temporal Layers
         self.temporal_embedding = TokenEmbedding_temporal(args.num_tiles**2, args.d_model)
 
-        temporal_selfattention = Temporal_SelfAttention(args.d_model, args.n_head, args.seq_len+args.pred_len)
+        if args.use_relativepos:
+            temporal_selfattention = Relative_Temporal_SelfAttention(args.d_model, args.n_head, args.seq_len+args.pred_len, args.save_attention)
+        else:
+            temporal_selfattention = Temporal_SelfAttention(args.d_model, args.n_head, args.save_attention)
 
         temporal_encoder_layers = [EncoderLayer(attention=temporal_selfattention,
                                                 d_model=args.d_model,
@@ -32,7 +36,10 @@ class Model(nn.Module):
         #Spatial Layers
         self.spatial_embedding = TokenEmbedding_spatial(args.seq_len+args.pred_len, args.d_model)
 
-        spatial_selfattention = Spatial_SelfAttention(args.d_model, args.n_head)
+        if args.use_keyvaluereduction:
+            spatial_selfattention = Geopatial_SelfAttention(args.d_model, args.n_head, args.save_attention)
+        else:
+            spatial_selfattention = Spatial_SelfAttention(args.d_model, args.n_head, args.save_attention)
 
         spatial_encoder_layers = [EncoderLayer(attention=spatial_selfattention,
                                                d_model=args.d_model,
@@ -44,6 +51,8 @@ class Model(nn.Module):
         self.spatial_transformer_encoder = Encoder(spatial_encoder_layers, spatial_norm)
 
         self.spatial_linear = nn.Linear(args.d_model, args.seq_len+args.pred_len)
+
+        self.args = args
 
 
 
@@ -62,4 +71,7 @@ class Model(nn.Module):
 
         out = temp_out.reshape(B, L+self.pred_len, O, D) + spat_out.permute(0,2,1).reshape(B, L+self.pred_len, O, D)
 
-        return out[:, -self.pred_len:, :, :], A_temporal, A_spatial
+        if self.args.save_attention_weight:
+            return out[:, -self.pred_len:, :, :], A_temporal, A_spatial
+        else:
+            return out[:, -self.pred_len:, :, :]

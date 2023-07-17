@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 from torch.utils.data import Dataset
+from utils.dataset_utils import get_normalized_adj
 
 class MyDataset(Dataset):
     def __init__(self, flag, args):
@@ -46,6 +47,9 @@ class MyDataset(Dataset):
         od_matrix = od_matrix[:, ~(od_sum==0).all(1), :]
         od_matrix = od_matrix[:, :, ~(od_sum.T==0).all(1)]
 
+        A = od_matrix.sum(axis=0)
+        self.A_hat = get_normalized_adj(A)
+
         self.tile_index = [i for i, x in enumerate(~(od_sum==0).all(1)) if x]
         self.empty_indices = [i for i, x in enumerate((od_sum==0).all(1)) if x]
 
@@ -74,23 +78,21 @@ class MyDataset(Dataset):
 
     def __len__(self):
         return len(self.data)
+    
+    def get_some(self):
+        if self.model=='GTFormer':
+            key_indices = []
+            for i in range(self.num_tiles**2):
+                index = []
+                start = i // self.num_tiles
+                end = i % self.num_tiles
+                for j in range(self.num_tiles):
+                    index.append(start*self.num_tiles + j)
+                    index.append(end + self.num_tiles*j)
+                index.remove(i)
+                key_indices.append(sorted(index))
 
-    def get_tile_index(self):
-        return self.tile_index, self.min_tile_id
-
-    def get_empty(self):
-        return self.empty_indices
-
-    def get_key_indices(self):
-        indices = []
-        for i in range(self.num_tiles**2):
-          index = []
-          start = i // self.num_tiles
-          end = i % self.num_tiles
-          for j in range(self.num_tiles):
-            index.append(start*self.num_tiles + j)
-            index.append(end + self.num_tiles*j)
-          index.remove(i)
-          indices.append(sorted(index))
-
-        return indices
+            return self.tile_index, self.min_tile_id, self.empty_indices, self.key_indices
+    
+        else:
+            return self.tile_index, self.min_tile_id, self.empty_indices, self.A_hat

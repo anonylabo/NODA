@@ -16,8 +16,6 @@ def data_provider(flag, args):
         drop_last=drop_last,
         num_workers=2)
 
-    tile_index, min_tile_id = data_set.get_tile_index()
-    empty_indices = data_set.get_empty()
-    key_indices = data_set.get_key_indices()
+    tile_index, min_tile_id, empty_indices, param = data_set.get_some()
 
-    return data_loader, empty_indices, min_tile_id, tile_index, key_indices
+    return data_loader, empty_indices, min_tile_id, tile_index, param

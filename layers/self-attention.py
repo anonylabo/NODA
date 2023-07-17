@@ -3,9 +3,9 @@ import math
 import torch
 
 
-class Temporal_SelfAttention(nn.Module):
-    def __init__(self, d_model, n_head, len):
-        super(Temporal_SelfAttention, self).__init__()
+class Relative_Temporal_SelfAttention(nn.Module):
+    def __init__(self, d_model, n_head, len, save_attention):
+        super(Relative_Temporal_SelfAttention, self).__init__()
 
         self.query_projection = nn.Linear(d_model, d_model, bias=False)
         self.key_projection = nn.Linear(d_model, d_model, bias=False)
@@ -16,8 +16,9 @@ class Temporal_SelfAttention(nn.Module):
         self.out_projection = nn.Linear(d_model, d_model)
         self.n_head = n_head
         self.len = len
+        self.save_attention = save_attention
 
-    def forward(self, x, key_indices):
+    def forward(self, x):
         B, L, _ = x.shape
         H = self.n_head
 
@@ -36,23 +37,65 @@ class Temporal_SelfAttention(nn.Module):
 
         scores = torch.einsum("blhd,bshd->bhls", queries, keys)
 
-        A = torch.softmax(scale * (scores * s_rel), dim=-1)
+        A = torch.softmax(scale * (scores + s_rel), dim=-1)
         V = torch.einsum("bhls,bshd->blhd", A, values)
         out = V.contiguous()
 
         out = out.view(B, L, -1)
 
-        return self.out_projection(out), A
+        if self.save_attention:
+            return self.out_projection(out), A
+        else:
+            return self.out_projection(out), None
+    
 
-class Spatial_SelfAttention(nn.Module):
-    def __init__(self, d_model, n_head):
-        super(Spatial_SelfAttention, self).__init__()
+
+class Temporal_SelfAttention(nn.Module):
+    def __init__(self, d_model, n_head, save_attention):
+        super(Temporal_SelfAttention, self).__init__()
+
+        self.query_projection = nn.Linear(d_model, d_model, bias=False)
+        self.key_projection = nn.Linear(d_model, d_model, bias=False)
+        self.value_projection = nn.Linear(d_model, d_model, bias=False)
+
+        self.out_projection = nn.Linear(d_model, d_model)
+        self.n_head = n_head
+        self.save_attention = save_attention
+
+    def forward(self, x):
+        B, L, _ = x.shape
+        H = self.n_head
+
+        queries = self.query_projection(x).view(B, L, H, -1)
+        keys = self.key_projection(x).view(B, L, H, -1)
+        values = self.value_projection(x).view(B, L, H, -1)
+
+        scale = 1. / math.sqrt(queries.shape[-1])
+
+        scores = torch.einsum("blhd,bshd->bhls", queries, keys)
+
+        A = torch.softmax(scale * scores, dim=-1)
+        V = torch.einsum("bhls,bshd->blhd", A, values)
+        out = V.contiguous()
+
+        out = out.view(B, L, -1)
+
+        if self.save_attention:
+            return self.out_projection(out), A
+        else:
+            return self.out_projection(out), None
+
+
+class Geospatial_SelfAttention(nn.Module):
+    def __init__(self, d_model, n_head, save_attention):
+        super(Geospatial_SelfAttention, self).__init__()
 
         self.query_projection = nn.Linear(d_model, d_model, bias=False)
         self.key_projection = nn.Linear(d_model, d_model, bias=False)
         self.value_projection = nn.Linear(d_model, d_model, bias=False)
         self.out_projection = nn.Linear(d_model, d_model)
         self.n_head = n_head
+        self.save_attention = save_attention
 
     def forward(self, x, key_indices):
         B, L, _ = x.shape
@@ -74,5 +117,43 @@ class Spatial_SelfAttention(nn.Module):
         out = V.permute(0,2,1,3).contiguous()
 
         out = out.view(B, L, -1)
+        
+        if self.save_attention:
+            return self.out_projection(out), A.squeeze()
+        else:
+            return self.out_projection(out), None
+    
 
-        return self.out_projection(out), A.squeeze()
+class Spatial_SelfAttention(nn.Module):
+    def __init__(self, d_model, n_head, save_attention):
+        super(Spatial_SelfAttention, self).__init__()
+
+        self.query_projection = nn.Linear(d_model, d_model, bias=False)
+        self.key_projection = nn.Linear(d_model, d_model, bias=False)
+        self.value_projection = nn.Linear(d_model, d_model, bias=False)
+        self.out_projection = nn.Linear(d_model, d_model)
+        self.n_head = n_head
+        self.save_attention = save_attention
+
+    def forward(self, x, key_indices):
+        B, L, _ = x.shape
+        H = self.n_head
+
+        queries = self.query_projection(x).view(B, L, H, -1)
+        keys = self.key_projection(x).view(B, L, H, -1)
+        values = self.value_projection(x).view(B, L, H, -1)
+
+        scale = 1. / math.sqrt(queries.shape[-1])
+
+        scores = torch.einsum("blhd,bshd->bhls", queries, keys)
+
+        A = torch.softmax(scale * scores, dim=-1)
+        V = torch.einsum("bhls,bshd->blhd", A, values)
+        out = V.contiguous()
+
+        out = out.view(B, L, -1)
+
+        if self.save_attention:
+            return self.out_projection(out), A
+        else:
+            return self.out_projection(out), None

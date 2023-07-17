@@ -27,7 +27,7 @@ class Exp_Main(Exp_Basic):
 
 
     def train(self):
-        train_loader, _, _, _, key_indices = data_provider('train', self.args)
+        train_loader, _, _, _, param = data_provider('train', self.args)
 
         path = os.path.join(self.args.path + f'/checkpoints_{self.args.model}/')
         if not os.path.exists(path):
@@ -52,7 +52,10 @@ class Exp_Main(Exp_Basic):
                 batch_x = batch_x.float().to(self.device)
                 batch_y = batch_y.float().to(self.device)
 
-                outputs, _, _ = self.model(batch_x, key_indices)
+                if self.args.save_attention:
+                    outputs, _, _ = self.model(batch_x, param)
+                else:
+                    outputs = self.model(batch_x, param)
 
                 loss = criterion(outputs, batch_y)
                 train_loss.append(loss.item())
@@ -78,7 +81,7 @@ class Exp_Main(Exp_Basic):
 
 
     def vali(self):
-        vali_loader, _, _, _, key_indices = data_provider('val', self.args)
+        vali_loader, _, _, _, param = data_provider('val', self.args)
         total_loss = []
         criterion = nn.MSELoss()
         self.model.eval()
@@ -88,7 +91,10 @@ class Exp_Main(Exp_Basic):
                 batch_x = batch_x.float().to(self.device)
                 batch_y = batch_y.float().to(self.device)
 
-                outputs, _, _ = self.model(batch_x, key_indices)
+                if self.args.save_attention:
+                    outputs, _, _ = self.model(batch_x, param)
+                else:
+                    outputs = self.model(batch_x, param)
 
                 loss = criterion(outputs, batch_y)
 
@@ -98,7 +104,7 @@ class Exp_Main(Exp_Basic):
         return total_loss
 
     def test(self, itr):
-        test_loader, empty_indices, min_tile_id, tile_index, key_indices = data_provider('test', self.args)
+        test_loader, empty_indices, min_tile_id, tile_index, param = data_provider('test', self.args)
 
         self.model.load_state_dict(torch.load(os.path.join(self.args.path + f'/checkpoints_{self.args.model}/' + 'checkpoint.pth')))
 
@@ -113,15 +119,19 @@ class Exp_Main(Exp_Basic):
                 batch_x = batch_x.float().to(self.device)
                 batch_y = batch_y.float().to(self.device)
 
-                outputs, A_temporal, A_spatial = self.model(batch_x, key_indices)
+                if self.args.save_attention_weight:
+                    outputs, A_temporal, A_spatial = self.model(batch_x, param)
+                else:
+                    outputs = self.model(batch_x, param)
 
                 preds.append(outputs.cpu().detach().numpy())
                 trues.append(batch_y.cpu().detach().numpy())
 
-                if self.args.save_output:
-                  A_spatial_ = torch.zeros((self.args.batch_size, self.args.n_head, self.args.num_tiles**2, self.args.num_tiles**2)).to(self.device)
-                  for j in range(self.args.num_tiles**4):
-                      A_spatial_[:, :, j, key_indices[j]] = A_spatial[:, :, j, :]
+                if self.args.model=='GTFormer':
+                    if self.args.save_attention:
+                        A_spatial_ = torch.zeros((self.args.batch_size, self.args.n_head, self.args.num_tiles**2, self.args.num_tiles**2)).to(self.device)
+                        for j in range(self.args.num_tiles**4):
+                            A_spatial_[:, :, j, param[j]] = A_spatial[:, :, j, :]
 
 
         preds = np.concatenate(preds, axis=0)

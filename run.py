@@ -27,7 +27,7 @@ def main():
     parser.add_argument('--seq_len', type=int, default=11, help='input sequence length')
     parser.add_argument('--pred_len', type=int, default=1, help='output sequence length')
     parser.add_argument('--lr', type=int, default=1e-03, help='learning rate')
-    parser.add_argument('--save_output', type=bool, default=False, help='save')
+    parser.add_argument('--save_attention', type=bool, default=False, help='save')
     parser.add_argument('--city', type=str, default='NYC', help='city name')
     parser.add_argument('--num_tiles', type=int, default=47, help='number of tiles') # set 47 for NYC, 154 for DC 
 
@@ -37,6 +37,8 @@ def main():
     parser.add_argument('--dropout', type=float, default=0.1)
     parser.add_argument('--temporal_num_layers', type=int, default=2)
     parser.add_argument('--spatial_num_layers', type=int, default=1)
+    parser.add_argument('--use_relativepos', type=bool, default=True, help='BRPE')
+    parser.add_argument('--use_keyvaluereduction', type=bool, default=True, help='KVR')
 
     #CrowdNet config
 
