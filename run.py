@@ -17,7 +17,6 @@ def main():
 
     #exp config
     parser.add_argument('--path', type=str, default='/content/drive/MyDrive/2023_Kodama/Crowd Flow', help='current directory') #/content/drive/MyDrive/Crowd
-    parser.add_argument('--tile_size', type=int, default=1000, help='tessellation tile size')
     parser.add_argument('--sample_time', type=str, default='60min', help='sample time')
     parser.add_argument('--itrs', type=int, default=10, help='number of run')
     parser.add_argument('--train_epochs', type=int, default=50, help='epochs')
