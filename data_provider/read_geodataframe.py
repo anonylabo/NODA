@@ -14,6 +14,7 @@ from urllib.request import urlopen
 def load_dataset(city, tile_size, sample_time, dataset_directory):
     print("Loading data...")
 
+    #Download the zip file, unzip it and convert to a dataframe
     if city=='NYC':
         for month in range(4,10):
             if not os.path.isfile(dataset_directory + "20140" + str(month) + "-citibike-tripdata.zip"):
@@ -41,6 +42,8 @@ def load_dataset(city, tile_size, sample_time, dataset_directory):
         data = [pd.read_csv(dataset_directory+file_name) for file_name in zip_files]
         df = pd.concat(data)
 
+        # Since there is no latitude and longitude information of each station in the Captial Bikeshare dataset,
+        # download station information and combine
         url = "https://gbfs.capitalbikeshare.com/gbfs/fr/station_information.json"
         response = urlopen(url)
         station_information = json.load(response)
@@ -64,22 +67,21 @@ def load_dataset(city, tile_size, sample_time, dataset_directory):
         df = df.rename({'Start date':'starttime', 'End date':'stoptime'}, axis=1)
         df = df.dropna()
 
-
+    #Load tile information
     tessellation = pd.read_csv(dataset_directory + city + "/Tessellation_" + str(tile_size) + "m.csv")
     tessellation['geometry'] = [shapely.wkt.loads(el) for el in tessellation.geometry]
     tessellation = gpd.GeoDataFrame(tessellation, geometry='geometry')
 
+    # tessellation['position'] contains che position in a matrix
+    # The origin is located on the bottom left corner
+    # We need to locate it on the top left corner
     list_positions = np.array([ast.literal_eval(el) for el in tessellation['position']])
-
-    max_x = list_positions[:, 0].max()
     max_y = list_positions[:, 1].max()
-
     for i, y in enumerate(list_positions[:, 1]):
         list_positions[i, 1] = max_y - y
-
     tessellation['positions'] = list(sorted(list_positions, key=itemgetter(0)))
 
-
+    # Filtering the dataset using the relevant features
     df = df.drop(['tripduration', 'start station id',  'start station name', 'end station id', 'end station name', 'bikeid', 'usertype', 'birth year', 'gender'], axis=1)
 
     gdf_in = gpd.GeoDataFrame(df, geometry=gpd.points_from_xy(df['start station longitude'], df['start station latitude']),  crs='epsg:4326')

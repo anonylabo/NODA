@@ -9,14 +9,13 @@ class Model(nn.Module):
     def __init__(self, args):
         super(Model, self).__init__()
 
-        self.pred_len = args.pred_len
         self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
         # Temporal Layers
         self.temporal_embedding = TokenEmbedding_temporal(args.num_tiles**2, args.d_model)
 
         if args.use_relativepos:
-            temporal_selfattention = Relative_Temporal_SelfAttention(args.d_model, args.n_head, args.seq_len+args.pred_len, args.save_attention)
+            temporal_selfattention = Relative_Temporal_SelfAttention(args.d_model, args.n_head, args.seq_len+1, args.save_attention)
         else:
             temporal_selfattention = Temporal_SelfAttention(args.d_model, args.n_head, args.save_attention)
 
@@ -34,7 +33,7 @@ class Model(nn.Module):
 
 
         #Spatial Layers
-        self.spatial_embedding = TokenEmbedding_spatial(args.seq_len+args.pred_len, args.d_model)
+        self.spatial_embedding = TokenEmbedding_spatial(args.seq_len+1, args.d_model)
 
         if args.use_keyvaluereduction:
             spatial_selfattention = Geopatial_SelfAttention(args.d_model, args.n_head, args.save_attention)
@@ -50,16 +49,20 @@ class Model(nn.Module):
 
         self.spatial_transformer_encoder = Encoder(spatial_encoder_layers, spatial_norm)
 
-        self.spatial_linear = nn.Linear(args.d_model, args.seq_len+args.pred_len)
+        self.spatial_linear = nn.Linear(args.d_model, args.seq_len+1)
 
         self.args = args
 
 
 
     def forward(self, X, key_indices):
+        #B: batch size
+        #L: sequence length
+        #O: num origin
+        #D: num destination
         B, L, O, D = X.shape
 
-        X = torch.cat([X, torch.zeros([B, self.pred_len, O, D]).to(self.device)], dim=1).reshape(B, L+self.pred_len, O*D)
+        X = torch.cat([X, torch.zeros([B, 1, O, D]).to(self.device)], dim=1).reshape(B, L+1, O*D)
 
         temp_in = self.temporal_embedding(X)
         temp_out, A_temporal = self.temporal_transformer_encoder(temp_in, key_indices)
@@ -69,9 +72,9 @@ class Model(nn.Module):
         spat_out, A_spatial = self.spatial_transformer_encoder(spat_in, key_indices)
         spat_out = self.spatial_linear(spat_out)
 
-        out = temp_out.reshape(B, L+self.pred_len, O, D) + spat_out.permute(0,2,1).reshape(B, L+self.pred_len, O, D)
+        out = temp_out.reshape(B, L+1, O, D) + spat_out.permute(0,2,1).reshape(B, L+1, O, D)
 
         if self.args.save_outputs:
-            return out[:, -self.pred_len:, :, :], A_temporal, A_spatial
+            return out[:, -1:, :, :], A_temporal, A_spatial
         else:
-            return out[:, -self.pred_len:, :, :]
+            return out[:, -1:, :, :]

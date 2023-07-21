@@ -28,7 +28,7 @@ class Exp_Main(Exp_Basic):
 
 
     def train(self):
-        od_matrix, _, _, _, param = create_od_matrix(self.args)
+        od_matrix, _, _, param = create_od_matrix(self.args)
         train_loader = data_provider('train', self.args, od_matrix)
 
         path = os.path.join(self.args.path + f'/checkpoints_{self.args.model}/')
@@ -38,7 +38,11 @@ class Exp_Main(Exp_Basic):
         train_steps = len(train_loader)
         early_stopping = EarlyStopping(patience=self.args.patience, verbose=True)
 
-        model_optim = torch.optim.Adam(self.model.parameters(), lr=self.args.lr)
+        if self.args.model == 'GTFormer':
+            model_optim = torch.optim.Adam(self.model.parameters(), lr=self.args.lr)
+        else:
+            model_optim = torch.optim.RMSProp(self.model.parameters(), )
+        
         criterion = nn.MSELoss()
         my_lr_scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer=model_optim, gamma=0.96)
 
@@ -109,7 +113,7 @@ class Exp_Main(Exp_Basic):
         return total_loss
 
     def test(self, itr):
-        od_matrix, min_tile_id, tile_index, empty_indices, param = create_od_matrix(self.args)
+        od_matrix, min_tile_id, empty_indices, param = create_od_matrix(self.args)
         test_loader = data_provider('test', self.args, od_matrix)
 
         self.model.load_state_dict(torch.load(os.path.join(self.args.path + f'/checkpoints_{self.args.model}/' + 'checkpoint.pth')))
@@ -118,7 +122,6 @@ class Exp_Main(Exp_Basic):
         trues = []
 
         self.model.eval()
-
 
         with torch.no_grad():
             for i, (batch_x, batch_y) in enumerate(test_loader):
@@ -143,44 +146,51 @@ class Exp_Main(Exp_Basic):
         preds = np.concatenate(preds, axis=0)
         trues = np.concatenate(trues, axis=0)
 
-        crowd_rmse_test = np.sqrt(mean_squared_error(trues.flatten().reshape(-1,1), preds.flatten().reshape(-1,1)))
-        crowd_mae_test = mean_absolute_error(trues.flatten().reshape(-1,1), preds.flatten().reshape(-1,1))
+        # Error of OD flow
+        od_rmse_test = np.sqrt(mean_squared_error(trues.flatten().reshape(-1,1), preds.flatten().reshape(-1,1)))
+        od_mae_test = mean_absolute_error(trues.flatten().reshape(-1,1), preds.flatten().reshape(-1,1))
 
-        print('Crowd Flow Prediction')
-        print("RMSE Error test: ", crowd_rmse_test)
-        print("MAE Error test: ", crowd_mae_test)
+        print('OD flow Prediction')
+        print("RMSE Error test: ", od_rmse_test)
+        print("MAE Error test: ", od_mae_test)
 
+        # Restore ODmatrirx
         matrix_mapping, x_max, y_max = get_matrix_mapping(self.args)
         trues = restore_od_matrix(trues, empty_indices)
         preds = restore_od_matrix(preds, empty_indices)
 
-        actual_map, predicted_map = to_2D_map(trues, preds, matrix_mapping, min_tile_id, x_max, y_max, self.args)
+        # Conversion OD matrix to IO flow tensor
+        trues_map, preds_map = to_2D_map(trues, preds, matrix_mapping, min_tile_id, x_max, y_max, self.args)
 
-        inout_rmse_test = np.sqrt(mean_squared_error(actual_map.flatten().reshape(-1,1), predicted_map.flatten().reshape(-1,1)))
-        inout_mae_test = mean_absolute_error(actual_map.flatten().reshape(-1,1), predicted_map.flatten().reshape(-1,1))
+        # Erro of IO flow
+        io_rmse_test = np.sqrt(mean_squared_error(trues_map.flatten().reshape(-1,1), preds_map.flatten().reshape(-1,1)))
+        io_mae_test = mean_absolute_error(trues_map.flatten().reshape(-1,1), preds_map.flatten().reshape(-1,1))
 
         print('In-Out Flow Prediction')
-        print("RMSE Error test: ", inout_rmse_test)
-        print("MAE Error test: ", inout_mae_test)
+        print("RMSE Error test: ", io_rmse_test)
+        print("MAE Error test: ", io_mae_test)
 
+        # Write results
         save_path = os.path.join(self.args.path + '/results_data/' + f'{self.args.tile_size}m_{self.args.sample_time}_{self.args.model}')
         if not os.path.exists(save_path):
             os.makedirs(save_path)
         f = open(save_path + '/result.txt', 'a')
         f.write('itr:{} \n'.format(itr+1))
-        f.write('Crowd flow prediction:   mse:{}, mae:{} \n'.format(crowd_rmse_test, crowd_mae_test))
-        f.write('In-Out flow prediction:   mse:{}, mae:{} \n'.format(inout_rmse_test, inout_mae_test))
+        f.write('OD flow prediction:   mse:{}, mae:{} \n'.format(od_rmse_test, od_mae_test))
+        f.write('IO flow prediction:   mse:{}, mae:{} \n'.format(io_rmse_test, io_mae_test))
         f.write('\n')
         f.write('\n')
         f.close()
 
+        # save predictions and true values
         if self.args.save_outputs:
             if not os.path.exists(save_path + f'/{itr}'):
                 os.makedirs(save_path + f'/{itr}')
-            np.save(save_path + f'/{itr}/' + 'preds.npy', preds)
-            np.save(save_path + f'/{itr}/' + 'trues.npy', trues)
+            np.save(save_path + f'/{itr}/' + 'od_preds.npy', preds)
+            np.save(save_path + f'/{itr}/' + 'od_trues.npy', trues)
+            np.save(save_path + f'/{itr}/' + 'io_preds.npy', preds_map)
+            np.save(save_path + f'/{itr}/' + 'io_trues.npy', trues_map)
             np.save(save_path + f'/{itr}/' + 'A_temporal.npy', A_temporal.cpu().detach().numpy())
             np.save(save_path + f'/{itr}/' + 'A_spatial.npy', A_spatial_.cpu().detach().numpy())
-            np.save(save_path + f'/{itr}/' + 'tile_index.npy', tile_index)
 
         return

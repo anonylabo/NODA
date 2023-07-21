@@ -9,39 +9,35 @@ class MyDataset(Dataset):
         self.set_type = type_map[flag]
 
         self.seq_len = args.seq_len
-        self.pred_len = args.pred_len
-        self.path = args.path
-        self.tile_size = args.tile_size
-        self.sample_time = args.sample_time
-        self.city = args.city
         day_steps = {'60min':24, '45min':32, '30min':48, '15min':96}
         self.day_step = day_steps[args.sample_time]
-        self.num_tiles = args.num_tiles
         self.__read_data__(od_matrix)
 
 
     def __read_data__(self, od_matrix):
-        data_len = len(od_matrix)
 
-        border1s = [0, self.day_step*((data_len-10)*0.8), self.day_step*(data_len-10)]
-        border2s = [self.day_step*((data_len-10)*0.8), self.day_step*(data_len-10), self.day_step*data_len]
+        #Change the extraction period according to train, valid, test
+        data_days = len(od_matrix)//self.day_step
+        border1s = [0, self.day_step*((data_days-10)*0.8), self.day_step*(data_days-10)]
+        border2s = [self.day_step*((data_days-10)*0.8), self.day_step*(data_days-10), self.day_step*data_days]
         border1 = border1s[self.set_type]
         border2 = border2s[self.set_type]
 
         od_matrix_ = od_matrix[border1:border2]
 
-        self.data = np.zeros(((self.day_step - self.seq_len)*od_matrix_.shape[0]//self.day_step, self.seq_len+self.pred_len, od_matrix_.shape[-2], od_matrix_.shape[-1]))
+        #Avoid retrieving data across dates (according to CrowdNet's experiment setting)
+        self.data = np.zeros(((self.day_step - self.seq_len)*od_matrix_.shape[0]//self.day_step, self.seq_len+1, od_matrix_.shape[-2], od_matrix_.shape[-1]))
         for i in range(od_matrix_.shape[0]//self.day_step):
           for j in range(self.day_step - self.seq_len):
             sta = i * self.day_step + j
-            end = sta + self.seq_len + self.pred_len
+            end = sta + self.seq_len + 1
             self.data[i * (self.day_step - self.seq_len) + j, :, :, :] = od_matrix_[sta:end]
 
 
     def __getitem__(self, index):
 
-        seq_x = self.data[index, :-self.pred_len]
-        seq_y = self.data[index, -self.pred_len:]
+        seq_x = self.data[index, :-1]
+        seq_y = self.data[index, -1:]
 
         return seq_x, seq_y
 

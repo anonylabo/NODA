@@ -15,7 +15,11 @@ class Model(nn.Module):
                                    kernel_size=(1, 1))
 
     def forward(self, X, A_hat):
-        # X shape : (B, L, O, D)
+        #X shape : (B, L, O, D)
+        #B: batch size
+        #L: sequence length
+        #O: num origin
+        #D: num destination
         X = X.permute(0, 2, 1, 3)
 
         out1 = self.block1(X, A_hat)

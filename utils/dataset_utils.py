@@ -7,9 +7,7 @@ from operator import itemgetter
 
 
 def get_normalized_adj(A):
-    """
-    Returns the degree normalized adjacency matrix.
-    """
+    # Returns the degree normalized adjacency matrix.
     A = A + np.diag(np.ones(A.shape[0], dtype=np.float32))
     D = np.array(np.sum(A, axis=1)).reshape((-1,))
     D[D <= 10e-5] = 10e-5    # Prevent infs
@@ -20,26 +18,14 @@ def get_normalized_adj(A):
 
 
 def get_matrix_mapping(args):
-    tessellation = pd.read_csv(args.path+f'/data/Tessellation_{args.tile_size}m_'+args.city+'.csv')
+    tessellation = pd.read_csv(args.path + "/data/" + args.city + "/Tessellation_" + str(args.tile_size) + "m" + args.city + ".csv")
     tessellation['geometry'] = [shapely.wkt.loads(el) for el in tessellation.geometry]
     tessellation = gpd.GeoDataFrame(tessellation, geometry='geometry')
 
-    # list_positions = [np.array(el) for el in tessellation['position']]
-    # list_positions = np.array(sorted(list_positions,key=itemgetter(1)))
-    list_positions = [np.array(ast.literal_eval(el)) for el in tessellation['position']]
-    list_positions = np.array(sorted(np.array(list_positions), key=itemgetter(1)))
-
-    max_x = list_positions[:, 0].max()
+    list_positions = np.array([ast.literal_eval(el) for el in tessellation['position']])
     max_y = list_positions[:, 1].max()
-
-    pos_set = set()
-    new_value = max_y +1
-    for i, pos in enumerate(list_positions[:, 1]):
-        if pos not in pos_set:
-            new_value -= 1
-            pos_set.add(pos)
-        list_positions[i, 1] = new_value
-
+    for i, y in enumerate(list_positions[:, 1]):
+        list_positions[i, 1] = max_y - y
     tessellation['positions'] = list(sorted(list_positions, key=itemgetter(0)))
 
     matrix_mapping = {el[0]:el[1] for el in zip(tessellation['tile_ID'], tessellation['positions'])}
@@ -61,25 +47,25 @@ def od_matrix_to_map(od_matrix, mapping, min_tile_id, map_shape):
     for i in range(od_matrix.shape[2]): # origin
         for j in range(od_matrix.shape[3]): # destination
             x, y = mapping[j+min_tile_id]
-            map_matrix[:, int(x), int(y), 0, :] += od_matrix[:, :, i, j]#.numpy() # Inflow
+            map_matrix[:, int(x), int(y), 0, :] += od_matrix[:, :, i, j]# Inflow
             x, y = mapping[i+min_tile_id]
-            map_matrix[:, int(x), int(y), 1, :] += od_matrix[:, :, i, j]#.numpy() # Outflow
+            map_matrix[:, int(x), int(y), 1, :] += od_matrix[:, :, i, j]# Outflow
     return map_matrix
 
 
-def remove_empty_rows(X_dataset, flows):
+def remove_empty_rows(X_dataset):
     X_new = []
     X_sum = []
-    for i in range(flows):
+    for i in range(2): # inflow and outflow
         X_new.append(X_dataset[:,:,:,i])
         X_sum.append(np.add.reduce(X_new[i]))
 
         X_new[i] = X_new[i][:,~(X_sum[i]==0).all(1)]    # Removing empty rows
         X_new[i] = X_new[i][:,:,~(X_sum[i].T==0).all(1)]    # Removing empty columns
 
-    X_dataset = np.empty([X_dataset.shape[0], X_new[0].shape[1], X_new[0].shape[2], flows])
+    X_dataset = np.empty([X_dataset.shape[0], X_new[0].shape[1], X_new[0].shape[2], 2])
 
-    for i in range(flows):
+    for i in range(2):
         X_dataset[:,:,:,i] = X_new[i]
 
     return X_dataset, (~(X_sum[i]==0).all(1), ~(X_sum[i].T==0).all(1))
@@ -91,7 +77,7 @@ def to_2D_map(actual, predicted, matrix_mapping, min_tile_id, x_max, y_max, args
     predicted_map = od_matrix_to_map(predicted, matrix_mapping, min_tile_id, [predicted.shape[0], x_max, y_max, 2, 1])
 
     # Removing rows and columns with no flows
-    actual_map, non_empty_shape = remove_empty_rows(actual_map[:,:,:,:,0], 2)
+    actual_map, non_empty_shape = remove_empty_rows(actual_map[:,:,:,:,0])
     predicted_map = predicted_map[:, non_empty_shape[0], :, :, :]
     predicted_map = predicted_map[:, :, non_empty_shape[1], :, :]
     predicted_map = predicted_map[:, :, :, :, 0]

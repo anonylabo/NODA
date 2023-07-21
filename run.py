@@ -24,7 +24,6 @@ def main():
     parser.add_argument('--model', type=str, default='GTFormer', help='model name')
     parser.add_argument('--batch_size', type=int, default=16, help='batch size')
     parser.add_argument('--seq_len', type=int, default=11, help='input sequence length')
-    parser.add_argument('--pred_len', type=int, default=1, help='output sequence length')
     parser.add_argument('--lr', type=int, default=1e-03, help='learning rate')
     parser.add_argument('--save_outputs', type=bool, default=False, help='save')
     parser.add_argument('--city', type=str, default='NYC', help='city name')

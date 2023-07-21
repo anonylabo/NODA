@@ -11,6 +11,7 @@ class Relative_Temporal_SelfAttention(nn.Module):
         self.key_projection = nn.Linear(d_model, d_model, bias=False)
         self.value_projection = nn.Linear(d_model, d_model, bias=False)
 
+        # Relative Postion Embedding E
         self.e_projection = nn.Linear(d_model//n_head, len, bias=False)
 
         self.out_projection = nn.Linear(d_model, d_model)
@@ -26,12 +27,14 @@ class Relative_Temporal_SelfAttention(nn.Module):
         keys = self.key_projection(x).view(B, L, H, -1)
         values = self.value_projection(x).view(B, L, H, -1)
 
-        e = self.e_projection(queries).permute(0,2,1,3)
+        # QE
+        qe = self.e_projection(queries).permute(0,2,1,3)
 
+        # Compute S^rel
         m = nn.ReflectionPad2d((0,self.len-1,0,0))
-        e = nn.functional.pad(m(e), (0,1,0,self.len-1))
-        e = e.reshape(B, H, e.shape[-1], e.shape[-2])
-        s_rel = e[:,:,:self.len,self.len-1:]
+        qe = nn.functional.pad(m(qe), (0,1,0,self.len-1))
+        qe = qe.reshape(B, H, qe.shape[-1], qe.shape[-2])
+        s_rel = qe[:,:,:self.len,self.len-1:]
 
         scale = 1. / math.sqrt(queries.shape[-1])
 
@@ -107,9 +110,9 @@ class Geospatial_SelfAttention(nn.Module):
 
         scale = 1. / math.sqrt(queries.shape[-1])
 
+        # Attention only to the key corresponding to each query
         keys_sample = keys[:, :, key_indices, :]
         values_sample = values[:, :, key_indices, :]
-
         scores = torch.einsum('bhlkd,bhlds->bhlks', queries.unsqueeze(-2), keys_sample.transpose(-2,-1))
 
         A = torch.softmax(scale * scores, dim=-1)
