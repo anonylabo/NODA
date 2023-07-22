@@ -35,10 +35,10 @@ pip install -r requirements.txt
 
 Our model achieves the following performance on OD flow problem:
  
-| Interval(min) | 60 | 45 | 30 | 15 | 60 | 45 | 
-| ------------- | -- | -- | -- | -- | -- | -- |
-| CrowdNet | 1.05 | 0.88 | 0.65 | 0.41 | 0.057 | 0.048 |
-| GTFormer | 0.94 | 0.80 | 0.59 | 0.38 | 0.054 | 0.046 |
+| Interval(min) | 60 | 45 | 30 | 15 || 60 | 45 | 
+| ------------- | -- | -- | -- | -- || -- | -- |
+| CrowdNet | 1.05 | 0.88 | 0.65 | 0.41 || 0.057 | 0.048 |
+| GTFormer | 0.94 | 0.80 | 0.59 | 0.38 || 0.054 | 0.046 |
 
 >📋  Include a table of results from your paper, and link back to the leaderboard for clarity and context. If your main result is a figure, include that figure and link to the command or notebook to reproduce it. 
 
