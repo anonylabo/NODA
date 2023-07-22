@@ -33,14 +33,13 @@ pip install -r requirements.txt
 
 ## Results
 
-Our model achieves the following performance on OD flow problem:
- 
-| Interval(min) | 60 | 45 | 30 | 15 || 60 | 45 | 
-| ------------- | -- | -- | -- | -- || -- | -- |
-| CrowdNet | 1.05 | 0.88 | 0.65 | 0.41 || 0.057 | 0.048 |
-| GTFormer | 0.94 | 0.80 | 0.59 | 0.38 || 0.054 | 0.046 |
+Our model achieves the following performance on OD flow predicton:
 
->📋  Include a table of results from your paper, and link back to the leaderboard for clarity and context. If your main result is a figure, include that figure and link to the command or notebook to reproduce it. 
+<img src="https://github.com/kodakoda-koda/GTFormer/assets/87755637/e18d0a43-036a-480a-b471-6adaac0bf04b" width="500">
+
+And our model achieves the following performance on IO flow prediction:
+
+<img src="https://github.com/kodakoda-koda/GTFormer/assets/87755637/e312dca7-7198-4d86-a21e-5b01fd521175" width="350">
 
 
 ## Contributing
