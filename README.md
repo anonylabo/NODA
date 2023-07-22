@@ -13,32 +13,27 @@ pip install -r requirements.txt
 
 >📋  Describe how to set up the environment, e.g. pip/conda/docker commands, download datasets, etc...
 
-## Training
+## Experiment
 
-To train the model(s) in the paper, run this command:
+1. Install the following:
+   ```
+   Python 3.10.6
+   torch 2.0.1
+   geopandas 0.10.2
+   scikit_mobility 1.3.1
+   rtree 1.0.1
+   ```
 
-```train
-python train.py --input-data <path_to_data> --alpha 10 --beta 20
-```
-
->📋  Describe how to train the models, with example commands on how to train the models in your paper, including the full training procedure and appropriate hyperparameters.
-
-## Evaluation
-
-To evaluate my model on ImageNet, run:
-
-```eval
-python eval.py --model-file mymodel.pth --benchmark imagenet
-```
-
->📋  Describe how to evaluate the trained models on benchmarks reported in the paper, give commands that produce the results (section below).
+2. We provide the experiment scripts of all models under the folder ./scripts. You can reproduce the experiment results by:
+   ```
+   ./scripts/NYC/GTFormer.sh
+   ./scripts/DC/GTFormer.sh
+   ``` 
 
 
 ## Results
 
 Our model achieves the following performance on :
-
-### [Image Classification on ImageNet](https://paperswithcode.com/sota/image-classification-on-imagenet)
 
 | Model name         | Top 1 Accuracy  | Top 5 Accuracy |
 | ------------------ |---------------- | -------------- |
