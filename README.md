@@ -15,7 +15,9 @@ pip install -r requirements.txt
 
 ## Experiment
 
-1. Install the following:
+1. Download data from [here](https://drive.google.com/drive/folders/1B9WRpkfHn48VfkaHjnErgQ5yb8Vv6PSj?usp=drive_link) and put into /data/NYC or /data/DC.
+
+2. Install the following:
    ```
    Python 3.10.6
    torch 2.0.1
@@ -24,7 +26,7 @@ pip install -r requirements.txt
    rtree 1.0.1
    ```
 
-2. We provide the experiment scripts of all models under the folder ./scripts. You can reproduce the experiment results by:
+3. We provide the experiment scripts of all models under the folder ./scripts. You can reproduce the experiment results by:
    ```
    ./scripts/NYC/GTFormer.sh
    ./scripts/DC/GTFormer.sh
