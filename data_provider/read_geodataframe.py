@@ -17,7 +17,7 @@ def load_dataset(city, sample_time, dataset_directory):
     #Download the zip file, unzip it and convert to a dataframe
     if city=='NYC':
         for month in range(4,10):
-            if not os.path.isfile(dataset_directory + "20140" + str(month) + "-citibike-tripdata.zip"):
+            if not os.path.isfile(dataset_directory + city + "/20140" + str(month) + "-citibike-tripdata.zip"):
                 url = "https://s3.amazonaws.com/tripdata/20140" + str(month)+ "-citibike-tripdata.zip"
                 r = requests.get(url, allow_redirects=True)
                 open(dataset_directory + city + "/20140" + str(month) + "-citibike-tripdata.zip", 'wb').write(r.content)
@@ -31,7 +31,7 @@ def load_dataset(city, sample_time, dataset_directory):
     else:
         for year in ['2018', '2019']:
             for month in ['01','02','03','04','05','06','07','08','09','10','11','12']:
-                if not os.path.isfile(dataset_directory + year + month + "-captialbikeshare-tripdata.zip"):
+                if not os.path.isfile(dataset_directory + city + "/" + year + month + "-capitalbikeshare-tripdata.zip"):
                     url = "https://s3.amazonaws.com/capitalbikeshare-data/" + year + month + "-capitalbikeshare-tripdata.zip"
                     r = requests.get(url, allow_redirects=True)
                     open(dataset_directory + city + "/" + year + month + "-capitalbikeshare-tripdata.zip", 'wb').write(r.content)

@@ -38,7 +38,7 @@ def create_od_matrix(args):
     #Remove origin-destination pairs whose flow is 0 at all times to make the calculation lighter
     od_sum = np.sum(od_matrix, axis=0)
     od_matrix = od_matrix[:, ~(od_sum==0).all(1), :]
-    od_matrix = od_matrix[:, :, ~(od_sum.T==0).all(1)]
+    od_matrix = od_matrix[:, :, ~(od_sum==0).all(1)]
 
     #Get indices of M in KVR for GTFformer
     if args.model=='GTFormer':
