@@ -18,8 +18,8 @@ class MyDataset(Dataset):
 
         #Change the extraction period according to train, valid, test
         data_days = len(od_matrix)//self.day_step
-        border1s = [0, self.day_step*((data_days-10)*0.8), self.day_step*(data_days-10)]
-        border2s = [self.day_step*((data_days-10)*0.8), self.day_step*(data_days-10), self.day_step*data_days]
+        border1s = [0, self.day_step*int((data_days-10)*0.8), self.day_step*int(data_days-10)]
+        border2s = [self.day_step*int((data_days-10)*0.8), self.day_step*int(data_days-10), self.day_step*data_days]
         border1 = border1s[self.set_type]
         border2 = border2s[self.set_type]
 

@@ -11,7 +11,7 @@ from urllib.request import urlopen
 
 
 
-def load_dataset(city, tile_size, sample_time, dataset_directory):
+def load_dataset(city, sample_time, dataset_directory):
     print("Loading data...")
 
     #Download the zip file, unzip it and convert to a dataframe
@@ -20,7 +20,7 @@ def load_dataset(city, tile_size, sample_time, dataset_directory):
             if not os.path.isfile(dataset_directory + "20140" + str(month) + "-citibike-tripdata.zip"):
                 url = "https://s3.amazonaws.com/tripdata/20140" + str(month)+ "-citibike-tripdata.zip"
                 r = requests.get(url, allow_redirects=True)
-                open(dataset_directory + "20140" + str(month) + "-citibike-tripdata.zip", 'wb').write(r.content)
+                open(dataset_directory + city + "/20140" + str(month) + "-citibike-tripdata.zip", 'wb').write(r.content)
                 print("Downloaded month: ", month)
 
         print("data preprocessing...")
@@ -34,7 +34,7 @@ def load_dataset(city, tile_size, sample_time, dataset_directory):
                 if not os.path.isfile(dataset_directory + year + month + "-captialbikeshare-tripdata.zip"):
                     url = "https://s3.amazonaws.com/capitalbikeshare-data/" + year + month + "-capitalbikeshare-tripdata.zip"
                     r = requests.get(url, allow_redirects=True)
-                    open(dataset_directory + year + month + "-capitalbikeshare-tripdata.zip", 'wb').write(r.content)
+                    open(dataset_directory + city + "/" + year + month + "-capitalbikeshare-tripdata.zip", 'wb').write(r.content)
                     print("Downloaded month: ", month)
         
         print("data preprocessing...")
@@ -68,7 +68,7 @@ def load_dataset(city, tile_size, sample_time, dataset_directory):
         df = df.dropna()
 
     #Load tile information
-    tessellation = pd.read_csv(dataset_directory + city + "/Tessellation_" + str(tile_size) + "m.csv")
+    tessellation = pd.read_csv(dataset_directory + city + "/Tessellation_1000m_" + city + ".csv")
     tessellation['geometry'] = [shapely.wkt.loads(el) for el in tessellation.geometry]
     tessellation = gpd.GeoDataFrame(tessellation, geometry='geometry')
 
@@ -103,4 +103,4 @@ def load_dataset(city, tile_size, sample_time, dataset_directory):
     gdf_grouped = gdf.groupby([pd.Grouper(key='starttime', freq=sample_time), 'tile_ID_origin','tile_ID_destination']).sum()
 
     # Saving geodataframe
-    gdf_grouped.to_csv(dataset_directory + city + "/df_grouped_" + str(tile_size) + "m_" + sample_time + ".csv")
+    gdf_grouped.to_csv(dataset_directory + city + "/df_grouped_1000m_" + sample_time + ".csv")

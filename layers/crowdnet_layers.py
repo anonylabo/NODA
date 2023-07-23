@@ -1,7 +1,7 @@
 import torch.nn as nn
 import torch
 import math
-import torch.functional as F
+import torch.nn.functional as F
 
 class TimeBlock(nn.Module):
 

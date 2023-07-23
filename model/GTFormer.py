@@ -2,7 +2,8 @@ import torch.nn as nn
 import torch
 
 from layers.embed import TokenEmbedding_spatial, TokenEmbedding_temporal
-from layers.transformer_encoder import Relative_Temporal_SelfAttention, Temporal_SelfAttention, Geopatial_SelfAttention, Spatial_SelfAttention, Encoder, EncoderLayer
+from layers.transformer_encoder import Encoder, EncoderLayer
+from layers.self_attention import Relative_Temporal_SelfAttention, Temporal_SelfAttention, Geospatial_SelfAttention, Spatial_SelfAttention
 
 
 class Model(nn.Module):
@@ -15,9 +16,9 @@ class Model(nn.Module):
         self.temporal_embedding = TokenEmbedding_temporal(args.num_tiles**2, args.d_model)
 
         if args.use_relativepos:
-            temporal_selfattention = Relative_Temporal_SelfAttention(args.d_model, args.n_head, args.seq_len+1, args.save_attention)
+            temporal_selfattention = Relative_Temporal_SelfAttention(args.d_model, args.n_head, args.seq_len+1, args.save_outputs)
         else:
-            temporal_selfattention = Temporal_SelfAttention(args.d_model, args.n_head, args.save_attention)
+            temporal_selfattention = Temporal_SelfAttention(args.d_model, args.n_head, args.save_outputs)
 
         temporal_encoder_layers = [EncoderLayer(attention=temporal_selfattention,
                                                 d_model=args.d_model,
@@ -35,10 +36,10 @@ class Model(nn.Module):
         #Spatial Layers
         self.spatial_embedding = TokenEmbedding_spatial(args.seq_len+1, args.d_model)
 
-        if args.use_keyvaluereduction:
-            spatial_selfattention = Geopatial_SelfAttention(args.d_model, args.n_head, args.save_attention)
+        if args.use_kvr:
+            spatial_selfattention = Geospatial_SelfAttention(args.d_model, args.n_head, args.save_outputs)
         else:
-            spatial_selfattention = Spatial_SelfAttention(args.d_model, args.n_head, args.save_attention)
+            spatial_selfattention = Spatial_SelfAttention(args.d_model, args.n_head, args.save_outputs)
 
         spatial_encoder_layers = [EncoderLayer(attention=spatial_selfattention,
                                                d_model=args.d_model,

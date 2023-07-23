@@ -30,6 +30,8 @@ class Exp_Main(Exp_Basic):
     def train(self):
         od_matrix, _, _, param = create_od_matrix(self.args)
         train_loader = data_provider('train', self.args, od_matrix)
+        if self.args.model=='CrowdNet':
+            param = torch.tensor(param).float().to(self.device)
 
         path = os.path.join(self.args.path + f'/checkpoints_{self.args.model}/')
         if not os.path.exists(path):
@@ -41,7 +43,7 @@ class Exp_Main(Exp_Basic):
         if self.args.model == 'GTFormer':
             model_optim = torch.optim.Adam(self.model.parameters(), lr=self.args.lr)
         else:
-            model_optim = torch.optim.RMSProp(self.model.parameters(), )
+            model_optim = torch.optim.RMSprop(self.model.parameters(), lr=self.args.lr, momentum=0.5)
         
         criterion = nn.MSELoss()
         my_lr_scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer=model_optim, gamma=0.96)
@@ -58,8 +60,7 @@ class Exp_Main(Exp_Basic):
                 batch_x = batch_x.float().to(self.device)
                 batch_y = batch_y.float().to(self.device)
 
-                if self.args.model=='CrowdNet':
-                    param = torch.tensor(param).float().to(self.device)
+                
 
                 if self.args.save_outputs:
                     outputs, _, _ = self.model(batch_x, param)
@@ -115,6 +116,8 @@ class Exp_Main(Exp_Basic):
     def test(self, itr):
         od_matrix, min_tile_id, empty_indices, param = create_od_matrix(self.args)
         test_loader = data_provider('test', self.args, od_matrix)
+        if self.args.model=='CrowdNet':
+            param = torch.tensor(param).float().to(self.device)
 
         self.model.load_state_dict(torch.load(os.path.join(self.args.path + f'/checkpoints_{self.args.model}/' + 'checkpoint.pth')))
 
@@ -171,7 +174,7 @@ class Exp_Main(Exp_Basic):
         print("MAE Error test: ", io_mae_test)
 
         # Write results
-        save_path = os.path.join(self.args.path + '/results_data/' + f'{self.args.tile_size}m_{self.args.sample_time}_{self.args.model}')
+        save_path = os.path.join(self.args.path + '/results_data/' + f'1000m_{self.args.sample_time}_{self.args.model}')
         if not os.path.exists(save_path):
             os.makedirs(save_path)
         f = open(save_path + '/result.txt', 'a')

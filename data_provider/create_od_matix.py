@@ -7,12 +7,15 @@ from utils.dataset_utils import get_normalized_adj
 def create_od_matrix(args):
     df = pd.read_csv(args.path + "/data/" + args.city + "/df_grouped_1000m_" + args.sample_time + ".csv")
 
+    minites = {'60min':60, '45min':45, '30min':30, '15min':15}
+    minite = minites[args.sample_time]
+
     #Calculate how many time intervals each time is counted from the beginning
     df['start'] = [df['starttime'][0] for _ in range(len(df))]
     df['start'] = pd.to_datetime(df['start'])
     df['starttime'] = pd.to_datetime(df['starttime'])
     df['dif'] = df['starttime'] - df['start']
-    df['dif'] = df['dif'].dt.total_seconds().round()/(re.sub(r"\D","",args.sample_time)*60)
+    df['dif'] = df['dif'].dt.total_seconds().round()/(minite*60)
     df['dif'] = df['dif'].astype('int')
 
     min_tile_id = df['tile_ID_origin'].min()

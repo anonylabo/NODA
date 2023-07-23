@@ -18,7 +18,7 @@ def get_normalized_adj(A):
 
 
 def get_matrix_mapping(args):
-    tessellation = pd.read_csv(args.path + "/data/" + args.city + "/Tessellation_" + str(args.tile_size) + "m" + args.city + ".csv")
+    tessellation = pd.read_csv(args.path + "/data/" + args.city + "/Tessellation_1000m_" + args.city + ".csv")
     tessellation['geometry'] = [shapely.wkt.loads(el) for el in tessellation.geometry]
     tessellation = gpd.GeoDataFrame(tessellation, geometry='geometry')
 
