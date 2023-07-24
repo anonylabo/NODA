@@ -3,7 +3,6 @@ import geopandas as gpd
 import pandas as pd
 import numpy as np
 import ast
-import requests
 import shapely.wkt
 from operator import itemgetter
 import json
@@ -12,32 +11,15 @@ from urllib.request import urlopen
 
 
 def load_dataset(city, sample_time, dataset_directory):
-    print("Loading data...")
 
-    #Download the zip file, unzip it and convert to a dataframe
+    #Unzip dataset and convert to a dataframe
+    print("data preprocessing...")
     if city=='NYC':
-        for month in range(4,10):
-            if not os.path.isfile(dataset_directory + city + "/20140" + str(month) + "-citibike-tripdata.zip"):
-                url = "https://s3.amazonaws.com/tripdata/20140" + str(month)+ "-citibike-tripdata.zip"
-                r = requests.get(url, allow_redirects=True)
-                open(dataset_directory + city + "/20140" + str(month) + "-citibike-tripdata.zip", 'wb').write(r.content)
-                print("Downloaded month: ", month)
-
-        print("data preprocessing...")
         zip_files = [f for f in os.listdir(dataset_directory) if f.endswith('.zip')]
         data = [pd.read_csv(dataset_directory+file_name) for file_name in zip_files]
         df = pd.concat(data)
     
     else:
-        for year in ['2018', '2019']:
-            for month in ['01','02','03','04','05','06','07','08','09','10','11','12']:
-                if not os.path.isfile(dataset_directory + city + "/" + year + month + "-capitalbikeshare-tripdata.zip"):
-                    url = "https://s3.amazonaws.com/capitalbikeshare-data/" + year + month + "-capitalbikeshare-tripdata.zip"
-                    r = requests.get(url, allow_redirects=True)
-                    open(dataset_directory + city + "/" + year + month + "-capitalbikeshare-tripdata.zip", 'wb').write(r.content)
-                    print("Downloaded month: ", month)
-        
-        print("data preprocessing...")
         zip_files = [f for f in os.listdir(dataset_directory) if f.endswith('.zip')]
         data = [pd.read_csv(dataset_directory+file_name) for file_name in zip_files]
         df = pd.concat(data)
@@ -68,7 +50,7 @@ def load_dataset(city, sample_time, dataset_directory):
         df = df.dropna()
 
     #Load tile information
-    tessellation = pd.read_csv(dataset_directory + city + "/Tessellation_1000m_" + city + ".csv")
+    tessellation = pd.read_csv(dataset_directory + "Tessellation_1000m_" + city + ".csv")
     tessellation['geometry'] = [shapely.wkt.loads(el) for el in tessellation.geometry]
     tessellation = gpd.GeoDataFrame(tessellation, geometry='geometry')
 
@@ -103,4 +85,4 @@ def load_dataset(city, sample_time, dataset_directory):
     gdf_grouped = gdf.groupby([pd.Grouper(key='starttime', freq=sample_time), 'tile_ID_origin','tile_ID_destination']).sum()
 
     # Saving geodataframe
-    gdf_grouped.to_csv(dataset_directory + city + "/df_grouped_1000m_" + sample_time + ".csv")
+    gdf_grouped.to_csv(dataset_directory + "df_grouped_1000m_" + sample_time + ".csv")

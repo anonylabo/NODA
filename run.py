@@ -46,7 +46,7 @@ def main():
 
     args = parser.parse_args(args=[])
 
-    dataset_directory = os.path.join(args.path + '/data/')
+    dataset_directory = os.path.join(args.path + '/data/' + args.city + '/')
     if not os.path.exists(dataset_directory):
         os.makedirs(dataset_directory)
     if not os.path.isfile(dataset_directory + args.city + "/df_grouped_1000m_" + args.sample_time + ".csv"):
