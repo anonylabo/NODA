@@ -20,14 +20,14 @@ def main():
     parser.add_argument('--model', type=str, default='CrowdNet', help='model name')
     parser.add_argument('--sample_time', type=str, default='60min', help='sample time')
 
-    parser.add_argument('--itrs', type=int, default=1, help='number of run')
-    parser.add_argument('--train_epochs', type=int, default=1, help='epochs')
+    parser.add_argument('--itrs', type=int, default=10, help='number of run')
+    parser.add_argument('--train_epochs', type=int, default=50, help='epochs')
     parser.add_argument('--patience', type=int, default=5, help='patience of early stopping')
     parser.add_argument('--batch_size', type=int, default=16, help='batch size')
     parser.add_argument('--seq_len', type=int, default=11, help='input sequence length')
     parser.add_argument('--lr', type=int, default=1e-03, help='learning rate')
     parser.add_argument('--save_outputs', type=bool, default=False, help='save')
-    parser.add_argument('--city', type=str, default='DC', help='city name')
+    parser.add_argument('--city', type=str, default='NYC', help='city name')
     parser.add_argument('--num_tiles', type=int, default=47, help='number of tiles') # set 47 for NYC, 154 for DC 
     parser.add_argument('--dropout', type=float, default=0.1, help='dropout late')
 
