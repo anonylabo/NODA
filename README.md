@@ -17,16 +17,8 @@ pip install -r requirements.txt
 
 1. Download data from [here](https://drive.google.com/drive/folders/1B9WRpkfHn48VfkaHjnErgQ5yb8Vv6PSj?usp=drive_link) and put into /data/NYC or /data/DC.
 
-2. Install the following:
-   ```
-   Python 3.10.6
-   torch 2.0.1
-   geopandas 0.10.2
-   scikit_mobility 1.3.1
-   rtree 1.0.1
-   ```
 
-3. We provide the experiment scripts of all models under the folder ./scripts. You can reproduce the experiment results by:
+2. We provide the experiment scripts of all models under the folder ./scripts. You can reproduce the experiment results by:
    ```
    ./scripts/NYC/GTFormer.sh
    ./scripts/DC/GTFormer.sh
