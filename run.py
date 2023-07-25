@@ -17,7 +17,7 @@ def main():
 
     #exp config
     parser.add_argument('--path', type=str, default='/content/GTFormer', help='current directory') 
-    parser.add_argument('--model', type=str, default='CrowdNet', help='model name')
+    parser.add_argument('--model', type=str, default='GTFormer', help='model name')
     parser.add_argument('--sample_time', type=str, default='60min', help='sample time')
 
     parser.add_argument('--itrs', type=int, default=10, help='number of run')
@@ -49,7 +49,7 @@ def main():
     dataset_directory = os.path.join(args.path + '/data/' + args.city + '/')
     if not os.path.exists(dataset_directory):
         os.makedirs(dataset_directory)
-    if not os.path.isfile(dataset_directory + args.city + "/df_grouped_1000m_" + args.sample_time + ".csv"):
+    if not os.path.isfile(dataset_directory + "df_grouped_1000m_" + args.sample_time + ".csv"):
         load_dataset(args.city, args.sample_time, dataset_directory)
 
     print('Args in experiment:')

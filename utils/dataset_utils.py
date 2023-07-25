@@ -53,12 +53,12 @@ def od_matrix_to_map(od_matrix, mapping, min_tile_id, map_shape):
     return map_matrix
 
 
-def remove_empty_rows(X_dataset, flows):
+def remove_empty_rows(X_dataset):
     X_sum = X_dataset.sum(axis=(0,-1))
     X_new = X_dataset[:, ~(X_sum==0).all(1)]
-    X_new = X_new[:, :, ~(X_sum==0).all(1)]
+    X_new = X_new[:, :, ~(X_sum.T==0).all(1)]
 
-    return X_new, (~(X_sum==0).all(1), ~(X_sum==0).all(1))
+    return X_new, (~(X_sum==0).all(1), ~(X_sum.T==0).all(1))
 
 
 def to_2D_map(actual, predicted, matrix_mapping, min_tile_id, x_max, y_max, args):

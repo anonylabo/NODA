@@ -141,13 +141,15 @@ class Exp_Main(Exp_Basic):
 
                 if self.args.model=='GTFormer':
                     if self.args.save_outputs:
-                        A_spatial_ = torch.zeros((self.args.batch_size, self.args.n_head, self.args.num_tiles**2, self.args.num_tiles**2)).to(self.device)
-                        for j in range(self.args.num_tiles**4):
-                            A_spatial_[:, :, j, param[j]] = A_spatial[:, :, j, :]
+                        if self.args.use_kvr:
+                            A_spatial_ = torch.zeros((self.args.batch_size, self.args.n_head, self.args.num_tiles**2, self.args.num_tiles**2)).to(self.device)
+                            for j in range(self.args.num_tiles**4):
+                                A_spatial_[:, :, j, param[j]] = A_spatial[:, :, j, :]
 
 
         preds = np.concatenate(preds, axis=0)
         trues = np.concatenate(trues, axis=0)
+        A_spatial = A_spatial_
 
         # Error of OD flow
         od_rmse_test = np.sqrt(mean_squared_error(trues.flatten().reshape(-1,1), preds.flatten().reshape(-1,1)))
