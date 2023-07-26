@@ -36,4 +36,10 @@ And our model achieves the following performance on IO flow prediction:
 
 ## Contributing
 
->📋  Pick a licence and describe how to contribute to your code repository. 
+>📋  Pick a licence and describe how to contribute to your code repository.
+
+## Acknowledgement
+
+We appreciate the following github repo a lot for their valuable code base
+
+https://github.com/thuml/Autoformer
