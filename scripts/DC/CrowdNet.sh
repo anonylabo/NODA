@@ -5,7 +5,7 @@ python -u run.py \
   --sample_time '60min' \
   --itrs 10 \
   --train_epochs 150 \
-  --patience 150 \
+  --patience 5 \
   --lr 1e-04 \
   --city 'DC' \
   --num_tiles 154 \
@@ -18,7 +18,7 @@ python -u run.py \
   --sample_time '45min' \
   --itrs 10 \
   --train_epochs 150 \
-  --patience 150 \
+  --patience 5 \
   --lr 1e-04 \
   --city 'DC' \
   --num_tiles 154 \
