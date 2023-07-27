@@ -34,10 +34,6 @@ And our model achieves the following performance on IO flow prediction:
 <img src="https://github.com/kodakoda-koda/GTFormer/assets/87755637/e312dca7-7198-4d86-a21e-5b01fd521175" width="350">
 
 
-## Contributing
-
->📋  Pick a licence and describe how to contribute to your code repository.
-
 ## Acknowledgement
 
 We appreciate the following github repo a lot for their valuable code base
