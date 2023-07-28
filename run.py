@@ -38,6 +38,7 @@ def main():
     parser.add_argument('--spatial_num_layers', type=int, default=1)
     parser.add_argument('--use_relativepos', type=bool, default=True, help='BRPE')
     parser.add_argument('--use_kvr', type=bool, default=True, help='KVR')
+    parser.add_argument('--use_only', type=bool, default='None', help='["Spatial", "Temporal", "None"]')
 
     #CrowdNet config
     parser.add_argument('--d_temporal', type=int, default=64)
