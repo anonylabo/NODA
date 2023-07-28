@@ -29,20 +29,6 @@ pip install -r requirements.txt
    ``` 
 
 
-## Results
-
-Our model achieves the following performance on OD and IO flow predicton:
-
-<div align="center">
-<img src="https://github.com/kodakoda-koda/GTFormer/assets/87755637/e18d0a43-036a-480a-b471-6adaac0bf04b" width="440">
-</div>
-
-
-<div align="center">
-<img src="https://github.com/kodakoda-koda/GTFormer/assets/87755637/e312dca7-7198-4d86-a21e-5b01fd521175" width="330">
-</div>
-
-
 ## Acknowledgement
 
 We appreciate the following github repo a lot for their valuable code base
