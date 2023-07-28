@@ -2,6 +2,10 @@
 
 This repository is the official implementation of GTFormer: a Geospatial Temporal Transformer for Crowd Flow Prediction. 
 
+<div align="center">
+<img src="https://github.com/kodakoda-koda/GTFormer/assets/87755637/d5ec3ee7-62f8-49a7-8eb6-80188b7fc686" width="1000" alt="Figure" title="Architecture of GTFormer">
+</div>
+
 
 ## Requirements
 
