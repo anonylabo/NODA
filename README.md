@@ -50,3 +50,10 @@ We appreciate the following github repo a lot for their valuable code base
 https://github.com/thuml/Autoformer
 
 https://github.com/jonpappalord/crowd_flow_prediction
+
+The dataset is provided by:
+
+https://capitalbikeshare.com/system-data
+
+https://citibikenyc.com/system-data
+
