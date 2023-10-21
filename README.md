@@ -1,6 +1,6 @@
 # GTFormer: a Geospatial Temporal Transformer for Crowd Flow Prediction
 
-This repository is the official implementation of GTFormer: a Geospatial Temporal Transformer for Crowd Flow Prediction. 
+This repository is the official implementation of GTFormer in ``Are Geospatial and Temporal Attentions All You Need for Crowd Flow Prediction?''. 
 
 <div align="center">
 <img src="https://github.com/anonylabo/GTFormer/blob/main/figure/GTFormer.png" width="1000" alt="Figure" title="Architecture of GTFormer">
