@@ -2,7 +2,6 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 
-
 class EncoderLayer(nn.Module):
     def __init__(self, attention, d_model, d_ff, dropout):
         super(EncoderLayer, self).__init__()

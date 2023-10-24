@@ -1,10 +1,11 @@
-import torch.nn as nn
-import torch
 import math
+
+import torch
+import torch.nn as nn
 import torch.nn.functional as F
 
-class TimeBlock(nn.Module):
 
+class TimeBlock(nn.Module):
     def __init__(self, in_channels, out_channels, kernel_size=3):
         super(TimeBlock, self).__init__()
         self.conv1 = nn.Conv2d(in_channels, out_channels, (1, kernel_size))
@@ -20,21 +21,16 @@ class TimeBlock(nn.Module):
 
 
 class STGCNBlock(nn.Module):
-
-    def __init__(self, in_channels, spatial_channels, out_channels,
-                 num_nodes):
+    def __init__(self, in_channels, spatial_channels, out_channels, num_nodes):
         super(STGCNBlock, self).__init__()
-        self.temporal1 = TimeBlock(in_channels=in_channels,
-                                   out_channels=out_channels)
-        self.Theta1 = nn.Parameter(torch.FloatTensor(out_channels,
-                                                     spatial_channels))
-        self.temporal2 = TimeBlock(in_channels=spatial_channels,
-                                   out_channels=out_channels)
+        self.temporal1 = TimeBlock(in_channels=in_channels, out_channels=out_channels)
+        self.Theta1 = nn.Parameter(torch.FloatTensor(out_channels, spatial_channels))
+        self.temporal2 = TimeBlock(in_channels=spatial_channels, out_channels=out_channels)
         self.batch_norm = nn.BatchNorm2d(num_nodes)
         self.reset_parameters()
 
     def reset_parameters(self):
-        stdv = 1. / math.sqrt(self.Theta1.shape[1])
+        stdv = 1.0 / math.sqrt(self.Theta1.shape[1])
         self.Theta1.data.uniform_(-stdv, stdv)
 
     def forward(self, X, A_hat):

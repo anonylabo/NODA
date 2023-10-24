@@ -1,16 +1,17 @@
-from exp.exp_basic import Exp_Basic
-from data_provider.data_loader import data_provider
-from data_provider.create_od_matix import create_od_matrix
-from model import GTFormer, CrowdNet
-from utils.dataset_utils import restore_od_matrix, get_matrix_mapping, to_2D_map
-from utils.exp_utils import EarlyStopping
-
 import os
+import time
+
+import numpy as np
 import torch
 import torch.nn as nn
-import time
-import numpy as np
 from sklearn.metrics import mean_absolute_error, mean_squared_error
+
+from data_provider.create_od_matix import create_od_matrix
+from data_provider.data_loader import data_provider
+from exp.exp_basic import Exp_Basic
+from model import CrowdNet, GTFormer
+from utils.dataset_utils import get_matrix_mapping, restore_od_matrix, to_2D_map
+from utils.exp_utils import EarlyStopping
 
 
 class Exp_Main(Exp_Basic):
@@ -19,32 +20,31 @@ class Exp_Main(Exp_Basic):
 
     def _build_model(self):
         model_dict = {
-            'GTFormer': GTFormer,
-            'CrowdNet': CrowdNet,
+            "GTFormer": GTFormer,
+            "CrowdNet": CrowdNet,
         }
         model = model_dict[self.args.model].Model(self.args).float()
 
         return model
 
-
     def train(self):
         od_matrix, _, _, param = create_od_matrix(self.args)
-        train_loader = data_provider('train', self.args, od_matrix)
-        if self.args.model=='CrowdNet':
+        train_loader = data_provider("train", self.args, od_matrix)
+        if self.args.model == "CrowdNet":
             param = torch.tensor(param).float().to(self.device)
 
-        path = os.path.join(self.args.path + f'/checkpoints_{self.args.model}/')
+        path = os.path.join(self.args.path + f"/checkpoints_{self.args.model}/")
         if not os.path.exists(path):
             os.makedirs(path)
 
         train_steps = len(train_loader)
         early_stopping = EarlyStopping(patience=self.args.patience, verbose=True)
 
-        if self.args.model == 'GTFormer':
+        if self.args.model == "GTFormer":
             model_optim = torch.optim.Adam(self.model.parameters(), lr=self.args.lr)
         else:
             model_optim = torch.optim.RMSprop(self.model.parameters(), lr=self.args.lr, momentum=0.5)
-        
+
         criterion = nn.MSELoss()
         my_lr_scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer=model_optim, gamma=0.96)
 
@@ -59,8 +59,6 @@ class Exp_Main(Exp_Basic):
                 model_optim.zero_grad()
                 batch_x = batch_x.float().to(self.device)
                 batch_y = batch_y.float().to(self.device)
-
-                
 
                 if self.args.save_outputs:
                     outputs, _, _ = self.model(batch_x, param)
@@ -77,21 +75,23 @@ class Exp_Main(Exp_Basic):
             vali_loss = self.vali(od_matrix, param)
 
             my_lr_scheduler.step()
-            print("Epoch: {}, cost time: {}, Steps: {} | Train Loss: {} Vali Loss: {}".format(
-                epoch + 1, time.time()-epoch_time, train_steps, train_loss, vali_loss))
+            print(
+                "Epoch: {}, cost time: {}, Steps: {} | Train Loss: {} Vali Loss: {}".format(
+                    epoch + 1, time.time() - epoch_time, train_steps, train_loss, vali_loss
+                )
+            )
             early_stopping(vali_loss, self.model, path)
             if early_stopping.early_stop:
                 print("Early stopping")
                 break
 
-        best_model_path = path + 'checkpoint.pth'
+        best_model_path = path + "checkpoint.pth"
         self.model.load_state_dict(torch.load(best_model_path))
 
         return
 
-
     def vali(self, od_matrix, param):
-        vali_loader = data_provider('val', self.args, od_matrix)
+        vali_loader = data_provider("val", self.args, od_matrix)
         total_loss = []
         criterion = nn.MSELoss()
         self.model.eval()
@@ -115,11 +115,13 @@ class Exp_Main(Exp_Basic):
 
     def test(self, itr):
         od_matrix, min_tile_id, empty_indices, param = create_od_matrix(self.args)
-        test_loader = data_provider('test', self.args, od_matrix)
-        if self.args.model=='CrowdNet':
+        test_loader = data_provider("test", self.args, od_matrix)
+        if self.args.model == "CrowdNet":
             param = torch.tensor(param).float().to(self.device)
 
-        self.model.load_state_dict(torch.load(os.path.join(self.args.path + f'/checkpoints_{self.args.model}/' + 'checkpoint.pth')))
+        self.model.load_state_dict(
+            torch.load(os.path.join(self.args.path + f"/checkpoints_{self.args.model}/" + "checkpoint.pth"))
+        )
 
         preds = []
         trues = []
@@ -139,23 +141,29 @@ class Exp_Main(Exp_Basic):
                 preds.append(outputs.cpu().detach().numpy())
                 trues.append(batch_y.cpu().detach().numpy())
 
-                if self.args.model=='GTFormer':
+                if self.args.model == "GTFormer":
                     if self.args.save_outputs:
                         if self.args.use_kvr:
-                            A_spatial_ = torch.zeros((self.args.batch_size, self.args.n_head, self.args.num_tiles**2, self.args.num_tiles**2)).to(self.device)
+                            A_spatial_ = torch.zeros(
+                                (
+                                    self.args.batch_size,
+                                    self.args.n_head,
+                                    self.args.num_tiles**2,
+                                    self.args.num_tiles**2,
+                                )
+                            ).to(self.device)
                             for j in range(self.args.num_tiles**4):
                                 A_spatial_[:, :, j, param[j]] = A_spatial[:, :, j, :]
-
 
         preds = np.concatenate(preds, axis=0)
         trues = np.concatenate(trues, axis=0)
         A_spatial = A_spatial_
 
         # Error of OD flow
-        od_rmse_test = np.sqrt(mean_squared_error(trues.flatten().reshape(-1,1), preds.flatten().reshape(-1,1)))
-        od_mae_test = mean_absolute_error(trues.flatten().reshape(-1,1), preds.flatten().reshape(-1,1))
+        od_rmse_test = np.sqrt(mean_squared_error(trues.flatten().reshape(-1, 1), preds.flatten().reshape(-1, 1)))
+        od_mae_test = mean_absolute_error(trues.flatten().reshape(-1, 1), preds.flatten().reshape(-1, 1))
 
-        print('OD flow Prediction')
+        print("OD flow Prediction")
         print("RMSE Error test: ", od_rmse_test)
         print("MAE Error test: ", od_mae_test)
 
@@ -168,34 +176,36 @@ class Exp_Main(Exp_Basic):
         trues_map, preds_map = to_2D_map(trues, preds, matrix_mapping, min_tile_id, x_max, y_max, self.args)
 
         # Erro of IO flow
-        io_rmse_test = np.sqrt(mean_squared_error(trues_map.flatten().reshape(-1,1), preds_map.flatten().reshape(-1,1)))
-        io_mae_test = mean_absolute_error(trues_map.flatten().reshape(-1,1), preds_map.flatten().reshape(-1,1))
+        io_rmse_test = np.sqrt(
+            mean_squared_error(trues_map.flatten().reshape(-1, 1), preds_map.flatten().reshape(-1, 1))
+        )
+        io_mae_test = mean_absolute_error(trues_map.flatten().reshape(-1, 1), preds_map.flatten().reshape(-1, 1))
 
-        print('In-Out Flow Prediction')
+        print("In-Out Flow Prediction")
         print("RMSE Error test: ", io_rmse_test)
         print("MAE Error test: ", io_mae_test)
 
         # Write results
-        save_path = os.path.join(self.args.path + '/results_data/' + f'1000m_{self.args.sample_time}_{self.args.model}')
+        save_path = os.path.join(self.args.path + "/results_data/" + f"1000m_{self.args.sample_time}_{self.args.model}")
         if not os.path.exists(save_path):
             os.makedirs(save_path)
-        f = open(save_path + '/result.txt', 'a')
-        f.write('itr:{} \n'.format(itr+1))
-        f.write('OD flow prediction:   mse:{}, mae:{} \n'.format(od_rmse_test, od_mae_test))
-        f.write('IO flow prediction:   mse:{}, mae:{} \n'.format(io_rmse_test, io_mae_test))
-        f.write('\n')
-        f.write('\n')
+        f = open(save_path + "/result.txt", "a")
+        f.write("itr:{} \n".format(itr + 1))
+        f.write("OD flow prediction:   mse:{}, mae:{} \n".format(od_rmse_test, od_mae_test))
+        f.write("IO flow prediction:   mse:{}, mae:{} \n".format(io_rmse_test, io_mae_test))
+        f.write("\n")
+        f.write("\n")
         f.close()
 
         # save predictions and true values
         if self.args.save_outputs:
-            if not os.path.exists(save_path + f'/{itr}'):
-                os.makedirs(save_path + f'/{itr}')
-            np.save(save_path + f'/{itr}/' + 'od_preds.npy', preds)
-            np.save(save_path + f'/{itr}/' + 'od_trues.npy', trues)
-            np.save(save_path + f'/{itr}/' + 'io_preds.npy', preds_map)
-            np.save(save_path + f'/{itr}/' + 'io_trues.npy', trues_map)
-            np.save(save_path + f'/{itr}/' + 'A_temporal.npy', A_temporal.cpu().detach().numpy())
-            np.save(save_path + f'/{itr}/' + 'A_spatial.npy', A_spatial_.cpu().detach().numpy())
+            if not os.path.exists(save_path + f"/{itr}"):
+                os.makedirs(save_path + f"/{itr}")
+            np.save(save_path + f"/{itr}/" + "od_preds.npy", preds)
+            np.save(save_path + f"/{itr}/" + "od_trues.npy", trues)
+            np.save(save_path + f"/{itr}/" + "io_preds.npy", preds_map)
+            np.save(save_path + f"/{itr}/" + "io_trues.npy", trues_map)
+            np.save(save_path + f"/{itr}/" + "A_temporal.npy", A_temporal.cpu().detach().numpy())
+            np.save(save_path + f"/{itr}/" + "A_spatial.npy", A_spatial_.cpu().detach().numpy())
 
         return
