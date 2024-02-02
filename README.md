@@ -3,7 +3,7 @@
 This repository is the official implementation of EGSA in ``Efficient Geospatial Self-Attention for Crowd Flow Prediction?'' 
 
 <div align="center">
-<img src="https://github.com/anonylabo/EGSA/blob/main/figure/GTFormer.png" width="1000" alt="Figure" title="Architecture of GTFormer">
+<img src="https://github.com/anonylabo/EGSA/blob/main/figure/GTFormer.png" width="1000" alt="Figure" title="Architecture of EGSA">
 </div>
 
 
