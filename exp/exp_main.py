@@ -9,7 +9,7 @@ from sklearn.metrics import mean_absolute_error, mean_squared_error
 from data_provider.create_od_matix import create_od_matrix
 from data_provider.data_loader import data_provider
 from exp.exp_basic import Exp_Basic
-from model import CrowdNet, EODA
+from model import EODA, CrowdNet
 from utils.dataset_utils import get_matrix_mapping, restore_od_matrix, to_2D_map
 from utils.exp_utils import EarlyStopping
 
@@ -155,22 +155,34 @@ class Exp_Main(Exp_Basic):
                             for j in range(self.args.num_tiles**4):
                                 A_spatial_[:, :, j, param[j]] = A_spatial[:, :, j, :]
 
+                            A_spatial = A_spatial_
+
         preds = np.concatenate(preds, axis=0)
         trues = np.concatenate(trues, axis=0)
-        A_spatial = A_spatial_
 
-        # Error of OD flow
-        od_rmse_test = np.sqrt(mean_squared_error(trues.flatten().reshape(-1, 1), preds.flatten().reshape(-1, 1)))
-        od_mae_test = mean_absolute_error(trues.flatten().reshape(-1, 1), preds.flatten().reshape(-1, 1))
+        if self.args.city == "NYC":
+            od_rmse_test = np.sqrt(mean_squared_error(trues.flatten().reshape(-1, 1), preds.flatten().reshape(-1, 1)))
+            od_mae_test = mean_absolute_error(trues.flatten().reshape(-1, 1), preds.flatten().reshape(-1, 1))
 
-        print("OD flow Prediction")
-        print("RMSE Error test: ", od_rmse_test)
-        print("MAE Error test: ", od_mae_test)
+            print("OD flow Prediction")
+            print("RMSE Error test: ", od_rmse_test)
+            print("MAE Error test: ", od_mae_test)
 
-        # Restore ODmatrirx
-        matrix_mapping, x_max, y_max = get_matrix_mapping(self.args)
-        trues = restore_od_matrix(trues, empty_indices)
-        preds = restore_od_matrix(preds, empty_indices)
+            matrix_mapping, x_max, y_max = get_matrix_mapping(self.args)
+            trues = restore_od_matrix(trues, empty_indices)
+            preds = restore_od_matrix(preds, empty_indices)
+
+        else:
+            matrix_mapping, x_max, y_max = get_matrix_mapping(self.args)
+            trues = restore_od_matrix(trues, empty_indices)
+            preds = restore_od_matrix(preds, empty_indices)
+
+            od_rmse_test = np.sqrt(mean_squared_error(trues.flatten().reshape(-1, 1), preds.flatten().reshape(-1, 1)))
+            od_mae_test = mean_absolute_error(trues.flatten().reshape(-1, 1), preds.flatten().reshape(-1, 1))
+
+            print("OD flow Prediction")
+            print("RMSE Error test: ", od_rmse_test)
+            print("MAE Error test: ", od_mae_test)
 
         # Conversion OD matrix to IO flow tensor
         trues_map, preds_map = to_2D_map(trues, preds, matrix_mapping, min_tile_id, x_max, y_max, self.args)
