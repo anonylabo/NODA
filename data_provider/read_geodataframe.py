@@ -112,7 +112,7 @@ def load_dataset(city, sample_time, dataset_directory):
         columns={"tile_ID_left": "tile_ID_origin", "tile_ID_right": "tile_ID_destination"}
     )
     gdf_final_join["starttime"] = pd.to_datetime(gdf_final_join["starttime"])
-    gdf_final_join = gdf_final_join.sort_values(by="starttime")
+    gdf_final_join = gdf_final_join.sort_values(by="starttime", format="mixed")
 
     gdf_final_join["flow"] = 1
     gdf = gdf_final_join[["starttime", "tile_ID_origin", "tile_ID_destination", "flow"]]
