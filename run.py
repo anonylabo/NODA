@@ -18,8 +18,8 @@ def main():
     parser = argparse.ArgumentParser(description="Crowd Prediction")
 
     # exp config
-    parser.add_argument("--path", type=str, default="/content/GTFormer", help="current directory")
-    parser.add_argument("--model", type=str, default="GTFormer", help="model name")
+    parser.add_argument("--path", type=str, default="/content/EODA", help="current directory")
+    parser.add_argument("--model", type=str, default="EODA", help="model name")
     parser.add_argument("--sample_time", type=str, default="60min", help="sample time")
 
     parser.add_argument("--itrs", type=int, default=10, help="number of run")
@@ -33,7 +33,7 @@ def main():
     parser.add_argument("--num_tiles", type=int, default=47, help="number of tiles")
     parser.add_argument("--dropout", type=float, default=0.1, help="dropout late")
 
-    # GTFormer config
+    # EODA config
     parser.add_argument("--d_model", type=int, default=64)
     parser.add_argument("--n_head", type=int, default=8)
     parser.add_argument("--temporal_num_layers", type=int, default=2)
