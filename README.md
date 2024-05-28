@@ -22,8 +22,8 @@ pip install -r requirements.txt
 
 2. We provide the experiment scripts of all models under the folder ./scripts. You can reproduce the experiment results by:
    ```
-   ./scripts/Main/NYC/EGSA.sh
-   ./scripts/Main/DC/EGSA.sh
+   ./scripts/Main/NYC/EODA.sh
+   ./scripts/Main/DC/EODA.sh
    ./scripts/Ablation/Transformer.sh
    ./scripts/Ablation/Attention.sh
    ``` 
