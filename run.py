@@ -1,12 +1,15 @@
 import argparse
 import os
 import random
+import warnings
 
 import numpy as np
 import torch
 
 from data_provider.read_geodataframe import load_dataset
 from exp.exp_main import Exp_Main
+
+warnings.filterwarnings("ignore")
 
 
 def main():
