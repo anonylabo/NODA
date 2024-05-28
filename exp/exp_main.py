@@ -155,7 +155,7 @@ class Exp_Main(Exp_Basic):
                             for j in range(self.args.num_tiles**4):
                                 A_spatial_[:, :, j, param[j]] = A_spatial[:, :, j, :]
 
-                            A_spatial = A_spatial_
+                            A_spatial = A_spatial_.cpu().detach()
 
         preds = np.concatenate(preds, axis=0)
         trues = np.concatenate(trues, axis=0)
@@ -218,6 +218,6 @@ class Exp_Main(Exp_Basic):
             np.save(save_path + f"/{itr}/" + "io_preds.npy", preds_map)
             np.save(save_path + f"/{itr}/" + "io_trues.npy", trues_map)
             np.save(save_path + f"/{itr}/" + "A_temporal.npy", A_temporal.cpu().detach().numpy())
-            np.save(save_path + f"/{itr}/" + "A_spatial.npy", A_spatial_.cpu().detach().numpy())
+            np.save(save_path + f"/{itr}/" + "A_spatial.npy", A_spatial.cpu().detach().numpy())
 
         return
