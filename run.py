@@ -18,7 +18,7 @@ def main():
     parser = argparse.ArgumentParser(description="Crowd Prediction")
 
     # exp config
-    parser.add_argument("--path", type=str, default="/content/EODA", help="current directory")
+    parser.add_argument("--path", type=str, default=".", help="current directory")
     parser.add_argument("--model", type=str, default="EODA", help="model name")
     parser.add_argument("--sample_time", type=str, default="60min", help="sample time")
 
