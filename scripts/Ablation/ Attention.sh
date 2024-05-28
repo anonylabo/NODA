@@ -1,7 +1,7 @@
 
 python -u run.py \
   --path ./ \
-  --model GTFormer \
+  --model EODA \
   --sample_time '60min' \
   --itrs 10 \
   --train_epochs 50 \
@@ -19,7 +19,7 @@ python -u run.py \
 
 python -u run.py \
   --path ./ \
-  --model GTFormer \
+  --model EODA \
   --sample_time '60min' \
   --itrs 10 \
   --train_epochs 50 \
@@ -37,7 +37,7 @@ python -u run.py \
 
 python -u run.py \
   --path ./ \
-  --model GTFormer \
+  --model EODA \
   --sample_time '60min' \
   --itrs 10 \
   --train_epochs 50 \
@@ -55,7 +55,7 @@ python -u run.py \
 
 python -u run.py \
   --path ./ \
-  --model GTFormer \
+  --model EODA \
   --sample_time '60min' \
   --itrs 10 \
   --train_epochs 50 \
