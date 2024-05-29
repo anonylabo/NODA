@@ -30,7 +30,7 @@ def main():
     parser.add_argument("--patience", type=int, default=5, help="patience of early stopping")
     parser.add_argument("--batch_size", type=int, default=16, help="batch size")
     parser.add_argument("--seq_len", type=int, default=11, help="input sequence length")
-    parser.add_argument("--lr", type=int, default=1e-03, help="learning rate")
+    parser.add_argument("--lr", type=float, default=1e-03, help="learning rate")
     parser.add_argument("--save_outputs", type=bool, default=False, help="save")
     parser.add_argument("--city", type=str, default="NYC", help="city name")
     parser.add_argument("--num_tiles", type=int, default=47, help="number of tiles")
@@ -49,7 +49,8 @@ def main():
     parser.add_argument("--d_temporal", type=int, default=64)
     parser.add_argument("--d_spatial", type=int, default=16)
 
-    args = parser.parse_args(args=[])
+    # args = parser.parse_args(args=[])
+    args = parser.parse_args()
 
     dataset_directory = os.path.join(args.path + "/data/" + args.city + "/")
     if not os.path.exists(dataset_directory):
