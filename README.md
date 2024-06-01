@@ -1,11 +1,12 @@
 # EODA 
 
-This repository is the official implementation of EODA in ``Efficient Geospatial Self-Attention for Crowd Flow Prediction?'' 
+This repository is the official implementation of EODA in ``Efficient Geospatial Self-Attention for Crowd Flow Prediction'' 
 
 <!-- div align="center" -->
-<!-- img src="https://github.com/anonylabo/EODA/blob/main/figure/GTFormer.png" width="1000" alt="Figure" title="Architecture of EODA" -->
+<!-- img src="https://github.com/anonylabo/EODA/blob/main/figure/EODA.png" width="1000" alt="Figure" title="Architecture of EODA" -->
 <!-- /div -->
 
+[Appendix (PDF)](https://github.com/anonylabo/EODA/blob/main/Appendix.pdf) : The appendix include A) Related Work, B) Definitions, C) Algorithm, and D) Outline of the Baselines 
 
 ## Requirements
 
