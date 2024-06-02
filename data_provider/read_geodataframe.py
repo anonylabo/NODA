@@ -26,7 +26,10 @@ def load_dataset(city, sample_time, dataset_directory):
         # Since there is no latitude and longitude information of each station in the Captial Bikeshare dataset,
         # download station information and combine
         url = "https://gbfs.capitalbikeshare.com/gbfs/fr/station_information.json"
-        response = urlopen(url)
+        try:
+          response = urlopen(url)
+        except:
+          print(url, 'Unreachable')
         station_information = json.load(response)
 
         lat = []
