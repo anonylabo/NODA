@@ -6,7 +6,7 @@ import warnings
 import numpy as np
 import torch
 
-from data_provider.read_geodataframe import load_dataset
+# from data_provider.read_geodataframe import load_dataset
 from exp.exp_main import Exp_Main
 
 warnings.filterwarnings("ignore")
@@ -53,10 +53,8 @@ def main():
     args = parser.parse_args()
 
     dataset_directory = os.path.join(args.path + "/data/" + args.city + "/")
-    if not os.path.exists(dataset_directory):
-        os.makedirs(dataset_directory)
-    if not os.path.isfile(dataset_directory + "df_grouped_1000m_" + args.sample_time + ".csv"):
-        load_dataset(args.city, args.sample_time, dataset_directory)
+    df_path = dataset_directory + "df_grouped_1000m_" + args.sample_time + ".csv"
+    assert os.path.exists(df_path), f"df_grouped_1000m_{args.sample_time}.csv does not exist in {dataset_directory}"
 
     print("Args in experiment:")
     print(args)
