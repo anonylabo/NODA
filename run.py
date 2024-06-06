@@ -31,7 +31,7 @@ def main():
     parser.add_argument("--batch_size", type=int, default=16, help="batch size")
     parser.add_argument("--seq_len", type=int, default=11, help="input sequence length")
     parser.add_argument("--lr", type=float, default=1e-03, help="learning rate")
-    parser.add_argument("--save_outputs", type=bool, default=False, help="save")
+    parser.add_argument("--save_outputs", action="store_true", help="save outputs")
     parser.add_argument("--city", type=str, default="NYC", help="city name")
     parser.add_argument("--num_tiles", type=int, default=47, help="number of tiles")
     parser.add_argument("--dropout", type=float, default=0.1, help="dropout late")
@@ -41,8 +41,8 @@ def main():
     parser.add_argument("--n_head", type=int, default=8)
     parser.add_argument("--temporal_num_layers", type=int, default=2)
     parser.add_argument("--spatial_num_layers", type=int, default=1)
-    parser.add_argument("--use_relativepos", type=bool, default=True, help="BRPE")
-    parser.add_argument("--use_kvr", type=bool, default=True, help="KVR")
+    parser.add_argument("--use_relativepos", action="store_true", help="BRPE")
+    parser.add_argument("--use_kvr", action="store_true", help="KVR")
     parser.add_argument("--use_only", type=bool, default="None", help='["Spatial", "Temporal", "None"]')
 
     # CrowdNet config

@@ -13,8 +13,7 @@ python -u run.py \
   --n_head 8 \
   --temporal_num_layers 2 \
   --spatial_num_layers 1 \
-  --use_relativepos True \
-  --use_kvr True
+  --use_kvr
 
 python -u run.py \
   --path ./ \
@@ -30,8 +29,7 @@ python -u run.py \
   --n_head 8 \
   --temporal_num_layers 2 \
   --spatial_num_layers 1 \
-  --use_relativepos True \
-  --use_kvr True
+  --use_kvr
 
 python -u run.py \
   --path ./ \
@@ -47,8 +45,7 @@ python -u run.py \
   --n_head 8 \
   --temporal_num_layers 2 \
   --spatial_num_layers 1 \
-  --use_relativepos True \
-  --use_kvr True
+  --use_kvr
 
 python -u run.py \
   --path ./ \
@@ -64,5 +61,4 @@ python -u run.py \
   --n_head 8 \
   --temporal_num_layers 2 \
   --spatial_num_layers 1 \
-  --use_relativepos True \
-  --use_kvr True
+  --use_kvr
