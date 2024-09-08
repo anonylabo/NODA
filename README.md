@@ -1,12 +1,12 @@
-# EODA 
+# NODA 
 
-This repository is the official implementation of EODA in ``Efficient Geospatial Self-Attention for Crowd Flow Prediction'' 
+This repository is the official implementation of NODA in ``Neighbor Geospatial Self-Attention for Crowd Flow Prediction'' 
 
 <!-- div align="center" -->
-<!-- img src="https://github.com/anonylabo/EODA/blob/main/figure/EODA.png" width="1000" alt="Figure" title="Architecture of EODA" -->
+<!-- img src="https://github.com/anonylabo/NODA/blob/main/figure/NODA.png" width="1000" alt="Figure" title="Architecture of NODA" -->
 <!-- /div -->
 
-[Appendix (PDF)](https://github.com/anonylabo/EODA/blob/main/Appendix.pdf) : The appendix include A) Related Work, B) Definitions, C) Algorithm, and D) Outline of the Baselines 
+[Appendix (PDF)](https://github.com/anonylabo/NODA/blob/main/Appendix.pdf) : The appendix include A) Related Work, B) Definitions, C) Algorithm, and D) Outline of the Baselines 
 
 ## Requirements
 
@@ -23,8 +23,8 @@ pip install -r requirements.txt
 
 2. We provide the experiment scripts of all models under the folder ./scripts. You can reproduce the experiment results by:
    ```
-   ./scripts/Main/NYC/EODA.sh
-   ./scripts/Main/DC/EODA.sh
+   ./scripts/Main/NYC/NODA.sh
+   ./scripts/Main/DC/NODA.sh
    ./scripts/Ablation/Transformer.sh
    ./scripts/Ablation/Attention.sh
    ``` 
