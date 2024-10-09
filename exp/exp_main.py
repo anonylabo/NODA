@@ -146,13 +146,13 @@ class Exp_Main(Exp_Basic):
                         if self.args.use_kvr:
                             A_spatial_ = torch.zeros(
                                 (
-                                    self.args.batch_size,
+                                    A_spatial.shape[0],
                                     self.args.n_head,
                                     self.args.num_tiles**2,
                                     self.args.num_tiles**2,
                                 )
                             ).to(self.device)
-                            for j in range(self.args.num_tiles**4):
+                            for j in range(self.args.num_tiles**2):
                                 A_spatial_[:, :, j, param[j]] = A_spatial[:, :, j, :]
 
                             A_spatial = A_spatial_.cpu().detach()
