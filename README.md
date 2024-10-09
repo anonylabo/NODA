@@ -1,12 +1,12 @@
-# NODA 
+# NODA
 
-This repository is the official implementation of NODA in ``Neighbor Geospatial Self-Attention for Crowd Flow Prediction'' 
+This repository is the official implementation of NODA in ''Neighbor Geospatial Self-Attention for Crowd Flow Prediction''
 
 <!-- div align="center" -->
 <!-- img src="https://github.com/anonylabo/NODA/blob/main/figure/NODA.png" width="1000" alt="Figure" title="Architecture of NODA" -->
 <!-- /div -->
 
-[Appendix (PDF)](https://github.com/anonylabo/NODA/blob/main/Appendix.pdf) : The appendix include A) Related Work, B) Definitions, C) Algorithm, and D) Outline of the Baselines 
+[Appendix (PDF)](https://github.com/anonylabo/NODA/blob/main/Appendix.pdf) : The appendix include A) Related Work, B) Definitions, C) Algorithm, and D) Outline of the Baselines
 
 ## Requirements
 
@@ -27,7 +27,7 @@ pip install -r requirements.txt
    ./scripts/Main/DC/NODA.sh
    ./scripts/Ablation/Transformer.sh
    ./scripts/Ablation/Attention.sh
-   ``` 
+   ```
 
 
 ## Acknowledgement
@@ -43,4 +43,3 @@ The dataset is provided by:
 https://capitalbikeshare.com/system-data
 
 https://citibikenyc.com/system-data
-
