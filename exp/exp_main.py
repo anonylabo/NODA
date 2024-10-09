@@ -9,7 +9,7 @@ from sklearn.metrics import mean_absolute_error, mean_squared_error
 from data_provider.create_od_matix import create_od_matrix
 from data_provider.data_loader import data_provider
 from exp.exp_basic import Exp_Basic
-from model import EODA, CrowdNet
+from model import NODA, CrowdNet
 from utils.dataset_utils import get_matrix_mapping, restore_od_matrix, to_2D_map
 from utils.exp_utils import EarlyStopping
 
@@ -20,7 +20,7 @@ class Exp_Main(Exp_Basic):
 
     def _build_model(self):
         model_dict = {
-            "EODA": EODA,
+            "NODA": NODA,
             "CrowdNet": CrowdNet,
         }
         model = model_dict[self.args.model].Model(self.args).float()
@@ -40,7 +40,7 @@ class Exp_Main(Exp_Basic):
         train_steps = len(train_loader)
         early_stopping = EarlyStopping(patience=self.args.patience, verbose=True)
 
-        if self.args.model == "EODA":
+        if self.args.model == "NODA":
             model_optim = torch.optim.Adam(self.model.parameters(), lr=self.args.lr)
         else:
             model_optim = torch.optim.RMSprop(self.model.parameters(), lr=self.args.lr, momentum=0.5)
@@ -141,18 +141,18 @@ class Exp_Main(Exp_Basic):
                 preds.append(outputs.cpu().detach().numpy())
                 trues.append(batch_y.cpu().detach().numpy())
 
-                if self.args.model == "EODA":
+                if self.args.model == "NODA":
                     if self.args.save_outputs:
                         if self.args.use_kvr:
                             A_spatial_ = torch.zeros(
                                 (
-                                    self.args.batch_size,
+                                    A_spatial.shape[0],
                                     self.args.n_head,
                                     self.args.num_tiles**2,
                                     self.args.num_tiles**2,
                                 )
                             ).to(self.device)
-                            for j in range(self.args.num_tiles**4):
+                            for j in range(self.args.num_tiles**2):
                                 A_spatial_[:, :, j, param[j]] = A_spatial[:, :, j, :]
 
                             A_spatial = A_spatial_.cpu().detach()

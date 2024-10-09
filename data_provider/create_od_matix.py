@@ -40,7 +40,7 @@ def create_od_matrix(args):
     od_matrix = od_matrix[:, :, ~(od_sum == 0).all(1)]
 
     # Get indices of M in KVR for GTFformer
-    if args.model == "EODA":
+    if args.model == "NODA":
         key_indices = []
         for i in range(args.num_tiles**2):
             index = []
@@ -60,7 +60,7 @@ def create_od_matrix(args):
     # For restore ODmatrix
     empty_indices = [i for i, x in enumerate((od_sum == 0).all(1)) if x]
 
-    if args.model == "EODA":
+    if args.model == "NODA":
         return od_matrix, min_tile_id, empty_indices, key_indices
     else:
         return od_matrix, min_tile_id, empty_indices, A_hat

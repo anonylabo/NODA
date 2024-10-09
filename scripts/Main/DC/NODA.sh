@@ -1,7 +1,7 @@
 
 python -u run.py \
   --path ./ \
-  --model EODA \
+  --model NODA \
   --sample_time '60min' \
   --itrs 3 \
   --train_epochs 50 \
@@ -17,7 +17,7 @@ python -u run.py \
 
 python -u run.py \
   --path ./ \
-  --model EODA \
+  --model NODA \
   --sample_time '45min' \
   --itrs 3 \
   --train_epochs 50 \
@@ -30,4 +30,3 @@ python -u run.py \
   --temporal_num_layers 2 \
   --spatial_num_layers 1 \
   --use_kvr
-
